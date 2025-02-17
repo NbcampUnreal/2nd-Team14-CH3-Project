@@ -19,7 +19,7 @@ class ESCAPEPROTOCOL_API AEPCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEPCharacter();
-	// Ä«¸Ş¶ó ¼³Á¤ °ü·Ã
+	// ì¹´ë©”ë¼ ì„¤ì • ê´€ë ¨
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
@@ -27,11 +27,11 @@ public:
 
 	FVector CameraSocketOffset = FVector(0.f, 40.f, 80.f);
 
-	// Ä³¸¯ÅÍ ¹«ºê¸ÕÆ® °ü·Ã
+	// ìºë¦­í„° ë¬´ë¸Œë¨¼íŠ¸ ê´€ë ¨
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	UCharacterMovementComponent* TPSMovementComp = GetCharacterMovement();
 
-	// Ä³¸¯ÅÍ Action °ü·Ã 
+	// ìºë¦­í„° Action ê´€ë ¨ 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void StartJump(const FInputActionValue& Value);

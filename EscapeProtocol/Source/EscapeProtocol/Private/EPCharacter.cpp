@@ -14,7 +14,7 @@ AEPCharacter::AEPCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Ä«¸Ş¶ó °ü·Ã
+	// ì¹´ë©”ë¼ ê´€ë ¨
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 400;
@@ -24,9 +24,9 @@ AEPCharacter::AEPCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
 
-	// ¹«ºê¸ÕÆ® °ü·Ã
+	// ë¬´ë¸Œë¨¼íŠ¸ ê´€ë ¨
 
-	// Ä³¸¯ÅÍ È¸Àü °ü·Ã
+	// ìºë¦­í„° íšŒì „ ê´€ë ¨
 	SpringArmComp->bUsePawnControlRotation = false;
 	CameraComp->bUsePawnControlRotation = false;
 
@@ -38,11 +38,12 @@ AEPCharacter::AEPCharacter()
 	TPSMovementComp->bUseControllerDesiredRotation = false;
 	TPSMovementComp->bAllowPhysicsRotationDuringAnimRootMotion = false;
 
-	// ¾É±â Crouch °ü·Ã
+	// ì•‰ê¸° Crouch ê´€ë ¨
 	TPSMovementComp->GetNavAgentPropertiesRef().bCanCrouch = true;
 	TPSMovementComp->bCanWalkOffLedgesWhenCrouching = true;
+	TPSMovementComp->HalfHeight = 
 
-	// Ä³¸¯ÅÍ °¨¼Ó °ü·Ã ¼³Á¤
+	// ìºë¦­í„° ê°ì† ê´€ë ¨ ì„¤ì •
 	TPSMovementComp->MaxAcceleration = 2400.0f;
 	TPSMovementComp->BrakingFrictionFactor = 1.0f;
 	TPSMovementComp->BrakingFriction = 6.0f;
@@ -56,13 +57,13 @@ void AEPCharacter::Move(const FInputActionValue& Value)
 {
 	const FVector2D MoveInput = Value.Get<FVector2D>();
 
-	// ¹ÌÀÔ·Â ¿¹¿ÜÃ³¸®
+	// ë¯¸ì…ë ¥ ì˜ˆì™¸ì²˜ë¦¬
 	if (MoveInput != FVector2D::ZeroVector)
 	{
-		// Ä³¸¯ÅÍÀÇ ¹æÇâ °è»ê
+		// ìºë¦­í„°ì˜ ë°©í–¥ ê³„ì‚°
 		const FVector DesireMoveDirection = GetActorForwardVector() * MoveInput.X + GetActorRightVector() * MoveInput.Y;
 
-		// ´ë°¢¼± ÀÌµ¿¿¡ Å©±â¿¡ ´ëÇÑ º¸Á¤
+		// ëŒ€ê°ì„  ì´ë™ì— í¬ê¸°ì— ëŒ€í•œ ë³´ì •
 		const FVector CharacterXYMoveDirection = DesireMoveDirection.GetSafeNormal();
 
 
@@ -73,11 +74,11 @@ void AEPCharacter::Move(const FInputActionValue& Value)
 		}
 
 
-		// Raycast ½ÃÀÛÁ¡
-		// °øÁß¿¡¼­ ½ºÆùÀÌ ½ÃÀÛ µÉ ¶§¸¦ À§ÇÑ ÃÊ±â ¼³Á¤
+		// Raycast ì‹œì‘ì 
+		// ê³µì¤‘ì—ì„œ ìŠ¤í°ì´ ì‹œì‘ ë  ë•Œë¥¼ ìœ„í•œ ì´ˆê¸° ì„¤ì •
 		FVector FloorNormal = FVector(0.f, 0.f, 1.f);
 
-		// Raycast ÀÇ ½ÃÀÛÁ¡°ú ³¡Á¡À» °è»êÇÏ±â À§ÇØ ÇÊ¿ä
+		// Raycast ì˜ ì‹œì‘ì ê³¼ ëì ì„ ê³„ì‚°í•˜ê¸° ìœ„í•´ í•„ìš”
 		const FVector CharacterLocation = GetActorLocation();
 		const FVector FootRayDirection = CharacterLocation - FVector(0.f, 0.f, 500.f);
 
@@ -101,7 +102,7 @@ void AEPCharacter::Move(const FInputActionValue& Value)
 void AEPCharacter::Look(const FInputActionValue& Value)
 {
 	const FVector2D LookInput = Value.Get<FVector2D>();
-	// ¹ÌÀÔ·Â ¿¹¿ÜÃ³¸®
+	// ë¯¸ì…ë ¥ ì˜ˆì™¸ì²˜ë¦¬
 	if (LookInput != FVector2D::ZeroVector)
 	{
 		AddControllerYawInput(LookInput.X);
@@ -114,7 +115,7 @@ void AEPCharacter::StartJump(const FInputActionValue& Value)
 	const bool JumpInput = Value.Get<bool>();
 	if (JumpInput)
 	{
-		// Jump() ´Â Crouch() µµÁß¿¡ »ç¿ëÇÒ ¼ö ¾ø¾î¼­ UnCrouch() ºÎÅÍ ½ÇÇà
+		// Jump() ëŠ” Crouch() ë„ì¤‘ì— ì‚¬ìš©í•  ìˆ˜ ì—†ì–´ì„œ UnCrouch() ë¶€í„° ì‹¤í–‰
 		if (bIsCrouching)
 		{
 			UnCrouch();
@@ -129,7 +130,7 @@ void AEPCharacter::StartJump(const FInputActionValue& Value)
 void AEPCharacter::StopJump(const FInputActionValue& Value)
 {
 	const bool JumpInput = Value.Get<bool>();
-	// ¹ÌÀÔ·Â ¿¹¿ÜÃ³¸®
+	// ë¯¸ì…ë ¥ ì˜ˆì™¸ì²˜ë¦¬
 	if (!JumpInput)
 	{
 		StopJumping();
@@ -140,7 +141,7 @@ void AEPCharacter::StopJump(const FInputActionValue& Value)
 void AEPCharacter::StartCrouch(const FInputActionValue& Value)
 {
 	const bool CrouchInput = Value.Get<bool>();
-	// ¹ÌÀÔ·Â ¿¹¿ÜÃ³¸®
+	// ë¯¸ì…ë ¥ ì˜ˆì™¸ì²˜ë¦¬
 	if (CrouchInput && !TPSMovementComp->IsFalling() && !bIsJumping)
 	{
 		Crouch();
@@ -152,7 +153,7 @@ void AEPCharacter::StartCrouch(const FInputActionValue& Value)
 void AEPCharacter::StopCrouch(const FInputActionValue& Value)
 {
 	const bool CrouchInput = Value.Get<bool>();
-	// ¹ÌÀÔ·Â ¿¹¿ÜÃ³¸®
+	// ë¯¸ì…ë ¥ ì˜ˆì™¸ì²˜ë¦¬
 	if (!CrouchInput)
 	{
 		UnCrouch();
@@ -164,7 +165,7 @@ void AEPCharacter::StopCrouch(const FInputActionValue& Value)
 void AEPCharacter::StartSprint(const FInputActionValue& Value)
 {
 	const bool SprintInput = Value.Get<bool>();
-	// ¹ÌÀÔ·Â ¿¹¿ÜÃ³¸®
+	// ë¯¸ì…ë ¥ ì˜ˆì™¸ì²˜ë¦¬
 	if (SprintInput)
 	{
 		TPSMovementComp->MaxWalkSpeed = SprintGroundSpeed;
@@ -175,7 +176,7 @@ void AEPCharacter::StartSprint(const FInputActionValue& Value)
 void AEPCharacter::StopSprint(const FInputActionValue& Value)
 {
 	const bool SprintInput = Value.Get<bool>();
-	// ¹ÌÀÔ·Â ¿¹¿ÜÃ³¸®
+	// ë¯¸ì…ë ¥ ì˜ˆì™¸ì²˜ë¦¬
 	if (!SprintInput)
 	{
 		TPSMovementComp->MaxWalkSpeed = NormalGroundSpeed;
@@ -207,21 +208,21 @@ void AEPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// BindAction À» À§ÇÑ EnhancedInputComponent °¡Á®¿À±â
+	// BindAction ì„ ìœ„í•œ EnhancedInputComponent ê°€ì ¸ì˜¤ê¸°
 	auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (!EnhancedInputComponent)
 	{
 		return;
 	}
 
-	// BindAction À» À§ÇÑ PlayerController °¡Á®¿À±â
+	// BindAction ì„ ìœ„í•œ PlayerController ê°€ì ¸ì˜¤ê¸°
 	const auto* PlayerController = Cast<AEPPlayerController>(GetController());
 	if (!PlayerController)
 	{
 		return;
-	}
+	}             
 
-	// Controller ¿¡ °¢°¢ÀÇ IA ÀÌ µî·ÏµÇ¾î ÀÖ´ÂÁö È®ÀÎ
+	// Controller ì— ê°ê°ì˜ IA ì´ ë“±ë¡ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸
 
 	if (PlayerController->MoveAction)
 	{

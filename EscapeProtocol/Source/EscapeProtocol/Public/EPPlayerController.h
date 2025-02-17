@@ -18,11 +18,11 @@ class ESCAPEPROTOCOL_API AEPPlayerController : public APlayerController
 public:
 	AEPPlayerController();
 
-	// Input Mapping °ü·Ã
+	// Input Mapping ê´€ë ¨
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|MappingContext")
 	UInputMappingContext* InputMappingContext = nullptr;
 
-	// Movement IA °ü·Ã
+	// Movement IA ê´€ë ¨
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Movement")
 	UInputAction* MoveAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Movement")
@@ -34,7 +34,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Movement")
 	UInputAction* SprintAction = nullptr;
 
-	// Battle IA °ü·Ã
+	// Battle IA ê´€ë ¨
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Battle")
 	UInputAction* FireAction = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Battle")

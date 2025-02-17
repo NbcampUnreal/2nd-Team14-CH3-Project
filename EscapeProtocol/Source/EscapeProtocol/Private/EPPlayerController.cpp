@@ -17,21 +17,21 @@ void AEPPlayerController::BeginPlay()
 
 void AEPPlayerController::AddInputMappingContext() const
 {
-	// Local Player °¡Á®¿À±â
+	// Local Player ê°€ì ¸ì˜¤ê¸°
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	if (!LocalPlayer)
 	{
 		return;
 	}
 
-	// Local Player ÀÇ Subsystem °¡Á®¿À±â
+	// Local Player ì˜ Subsystem ê°€ì ¸ì˜¤ê¸°
 	auto* EnhancedInputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	if (!EnhancedInputSubsystem)
 	{
 		return;
 	}
 
-	// Local Player ÀÇ Subsystem ¿¡ InputMappingContext Ãß°¡
+	// Local Player ì˜ Subsystem ì— InputMappingContext ì¶”ê°€
 	EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
 
 }
