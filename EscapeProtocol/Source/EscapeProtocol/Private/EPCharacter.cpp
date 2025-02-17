@@ -41,7 +41,7 @@ AEPCharacter::AEPCharacter()
 	// 앉기 Crouch 관련
 	TPSMovementComp->GetNavAgentPropertiesRef().bCanCrouch = true;
 	TPSMovementComp->bCanWalkOffLedgesWhenCrouching = true;
-	TPSMovementComp->HalfHeight = 
+	TPSMovementComp->SetCrouchedHalfHeight(80.f);
 
 	// 캐릭터 감속 관련 설정
 	TPSMovementComp->MaxAcceleration = 2400.0f;
