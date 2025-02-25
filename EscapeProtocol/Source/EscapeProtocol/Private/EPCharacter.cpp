@@ -12,12 +12,12 @@
 
 AEPCharacter::AEPCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// 카메라 관련
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = 400;
+	SpringArmComp->TargetArmLength = 350;
 	SpringArmComp->SocketOffset = CameraSocketOffset;
 
 
@@ -25,9 +25,10 @@ AEPCharacter::AEPCharacter()
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	// 무브먼트 관련
+	TPSMovementComp->MaxWalkSpeed = 400.0f;
 
 	// 캐릭터 회전 관련
-	SpringArmComp->bUsePawnControlRotation = false;
+	SpringArmComp->bUsePawnControlRotation = true;
 	CameraComp->bUsePawnControlRotation = false;
 
 	bUseControllerRotationPitch = false;
@@ -41,7 +42,7 @@ AEPCharacter::AEPCharacter()
 	// 앉기 Crouch 관련
 	TPSMovementComp->GetNavAgentPropertiesRef().bCanCrouch = true;
 	TPSMovementComp->bCanWalkOffLedgesWhenCrouching = true;
-	TPSMovementComp->SetCrouchedHalfHeight(80.f);
+	TPSMovementComp->SetCrouchedHalfHeight(60.f);
 
 	// 캐릭터 감속 관련 설정
 	TPSMovementComp->MaxAcceleration = 2400.0f;
@@ -49,9 +50,8 @@ AEPCharacter::AEPCharacter()
 	TPSMovementComp->BrakingFriction = 6.0f;
 	TPSMovementComp->GroundFriction = 8.0f;
 	TPSMovementComp->BrakingDecelerationWalking = 1400.0f;
-
-
 }
+
 
 void AEPCharacter::Move(const FInputActionValue& Value)
 {
@@ -156,6 +156,20 @@ void AEPCharacter::StopCrouch(const FInputActionValue& Value)
 	// 미입력 예외처리
 	if (!CrouchInput)
 	{
+		const FVector CharacterLocation = GetActorLocation();
+		const FVector CharacterUpVector = GetActorUpVector();
+		const FVector UpRayDirection = 100.f*CharacterUpVector;
+
+		FHitResult RaycastHitInfo;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+
+		const bool bRaycastHitResult = GetWorld()->LineTraceSingleByChannel(RaycastHitInfo, CharacterLocation, UpRayDirection, ECC_Visibility, QueryParams);
+		if (bRaycastHitResult)
+		{
+			return;
+		}
+		
 		UnCrouch();
 		bIsCrouching = false;
 
@@ -169,7 +183,7 @@ void AEPCharacter::StartSprint(const FInputActionValue& Value)
 	if (SprintInput)
 	{
 		TPSMovementComp->MaxWalkSpeed = SprintGroundSpeed;
-
+		bIsSprinting = true;
 	}
 }
 
@@ -180,7 +194,7 @@ void AEPCharacter::StopSprint(const FInputActionValue& Value)
 	if (!SprintInput)
 	{
 		TPSMovementComp->MaxWalkSpeed = NormalGroundSpeed;
-
+		bIsSprinting = false;
 	}
 }
 

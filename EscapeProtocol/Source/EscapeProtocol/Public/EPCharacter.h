@@ -19,6 +19,7 @@ class ESCAPEPROTOCOL_API AEPCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEPCharacter();
+
 	// 카메라 설정 관련
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
@@ -30,6 +31,7 @@ public:
 	// 캐릭터 무브먼트 관련
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	UCharacterMovementComponent* TPSMovementComp = GetCharacterMovement();
+	
 
 	// 캐릭터 Action 관련 
 	void Move(const FInputActionValue& Value);
@@ -44,13 +46,17 @@ public:
 	void Reload(const FInputActionValue& Value);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float NormalGroundSpeed = 600.0f;
+	float NormalGroundSpeed = 400.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float SprintGroundSpeed = 1000.0f;
+	float SprintGroundSpeed = 600.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Crouch")
 	bool bIsCrouching = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Jump")
 	bool bIsJumping = false;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Sprint")
+	bool bIsSprinting = false;
+	
 protected:
 	virtual void BeginPlay() override;
 
