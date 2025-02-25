@@ -3,6 +3,7 @@
 
 #include "EPPlayerController.h"
 #include "EnhancedInputSubsystems.h"
+#include "Blueprint/UserWidget.h"
 
 AEPPlayerController::AEPPlayerController()
 {
@@ -13,6 +14,15 @@ void AEPPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	AddInputMappingContext();
+
+	if (HUDWidgetClass)
+	{
+		UUserWidget* HUDWidget = CreateWidget<UUserWidget>(this, HUDWidgetClass);
+			if (HUDWidget)
+			{
+				HUDWidget->AddToViewport();
+		}
+	}
 }
 
 void AEPPlayerController::AddInputMappingContext() const
