@@ -4,9 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "EPAssaultRifle.h"
-
-
 #include "EPCharacter.generated.h"
 
 class USpringArmComponent;
@@ -53,9 +50,6 @@ public:
 
 	bool bIsCrouching = false;
 	bool bIsJumping = false;
-
-	
-
 
 protected:
 	virtual void BeginPlay() override;
