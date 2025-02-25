@@ -32,7 +32,7 @@ void AEPAIController::BeginPlay()
 
 void AEPAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-
+    Super::OnMoveCompleted(RequestID, Result);
 }
 
 
