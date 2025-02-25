@@ -25,6 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Bullet");
 	float FireDelay;
 	FTimerHandle FireDelayTimerHandle;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Bullet");
 	bool FireReady;
 

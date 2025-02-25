@@ -2,6 +2,8 @@
 
 
 #include "EPBaseWeapon.h"
+#include "Engine/SkeletalMeshSocket.h"
+
 
 AEPBaseWeapon::AEPBaseWeapon()
 {
@@ -10,9 +12,9 @@ AEPBaseWeapon::AEPBaseWeapon()
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	SetRootComponent(Scene);
 
-	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
-	SkeletalMesh->SetupAttachment(Scene);
-
+	SkeletalMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
+	SkeletalMeshComp->SetupAttachment(Scene);
+	SkeletalMeshComp->SetWorldRotation(FRotator(0.0f, 90.0f, 0.0f));
 
 }
 
@@ -20,7 +22,6 @@ AEPBaseWeapon::AEPBaseWeapon()
 
 void AEPBaseWeapon::FireGun()
 {
-
 }
 
 void AEPBaseWeapon::ReloadGun()

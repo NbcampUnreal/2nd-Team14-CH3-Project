@@ -4,11 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "EPGun.h"
+
+
 #include "EPAssaultRifle.generated.h"
 
 /**
  * 
  */
+class USkeletalMeshComponent;
+
+
 UCLASS()
 class ESCAPEPROTOCOL_API AEPAssaultRifle : public AEPGun
 {
@@ -17,6 +22,10 @@ class ESCAPEPROTOCOL_API AEPAssaultRifle : public AEPGun
 public:
 
 	AEPAssaultRifle();
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Property")
+	FTransform MuzzleTransform;
 
 
 	UFUNCTION(BlueprintCallable)

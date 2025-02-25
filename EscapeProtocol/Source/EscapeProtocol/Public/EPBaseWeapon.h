@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EPWeaponInterface.h"
-#include "EPBaseWeapon.generated.h"
 
+#include "EPBaseWeapon.generated.h"
 
 
 UCLASS()
@@ -25,14 +25,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon|Compoent")
 	USceneComponent* Scene;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon|Compoent")
-	USkeletalMeshComponent* SkeletalMesh;
+	USkeletalMeshComponent* SkeletalMeshComp;
+
+	
+
+	
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon|Property")
 	EWeaponType WeaponType;
 
-
 	
+	
+
+
 	virtual void FireGun() override;
 
 	
