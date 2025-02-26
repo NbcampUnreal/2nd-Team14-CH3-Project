@@ -11,6 +11,10 @@ AEPEnemyCharacter::AEPEnemyCharacter()
 	AttackDamage = 20.0f;
 	Health = MaxHealth;
 	patrolRadius = 1000.0f;
+	CombatDuration = 5.0f;
+	ChaseSpeed = 500.0f;
+	PatrolSpeed = 150.0f;
+	bIsInCombat = false;
 }
 
 void AEPEnemyCharacter::BeginPlay()
@@ -22,6 +26,8 @@ void AEPEnemyCharacter::BeginPlay()
 	if (AIController)
 	{
 		AIController->SetPatrolRadius(patrolRadius);
+		AIController->SetChaseSpeed(ChaseSpeed);
+		AIController->SetPatrolSpeed(PatrolSpeed);
 	}
 }
 
@@ -63,7 +69,6 @@ float AEPEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 void AEPEnemyCharacter::Attack()
 {
 	
-
 	if (bIsAttacking)
 	{
 		return;
@@ -77,7 +82,16 @@ void AEPEnemyCharacter::Attack()
 			float MontageDuration = AnimInstance->Montage_Play(AttackMontage, 1.0f);
 			if (MontageDuration > 0.f)
 			{
+				StartCombat();
 				bIsAttacking = true;
+				AEPCharacter* PlayerCharacter = Cast<AEPCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+				if (PlayerCharacter)
+				{
+					float DamageAmount = GetAttackerPower();
+					UGameplayStatics::ApplyDamage(PlayerCharacter, DamageAmount, GetController(), this, UDamageType::StaticClass());
+					UE_LOG(LogTemp, Warning, TEXT("Player takeDamage : %f"), DamageAmount);
+				}
+
 
 				FOnMontageEnded MontageEndedDelegate;
 				MontageEndedDelegate.BindUObject(this, &AEPEnemyCharacter::OnAttackMontageEnded);
@@ -85,15 +99,53 @@ void AEPEnemyCharacter::Attack()
 			}
 		}
 	}
-	AEPCharacter* PlayerCharacter = Cast<AEPCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	
-	if (PlayerCharacter)
+
+
+}
+
+void AEPEnemyCharacter::StartCombat()
+{
+	if (!bIsInCombat)
 	{
-		float DamageAmount = GetAttackerPower();
-		UGameplayStatics::ApplyDamage(PlayerCharacter, DamageAmount, GetController(), this, UDamageType::StaticClass());
-		UE_LOG(LogTemp, Warning, TEXT("Player takeDamage : %f"), DamageAmount);
+		bIsInCombat = true;
+
+		GetWorldTimerManager().SetTimer(CombatTimerHandle, this, &AEPEnemyCharacter::EndCombat, CombatDuration, false);
+
+		// Blackboard 값 변경
+		AEPAIController* AIController = Cast<AEPAIController>(GetController());
+		if (AIController)
+		{
+			AIController->SetCombatState(bIsInCombat);  // 강제로 감지 유지
+		}
+	}
+	else
+	{
+		// 전투 중 추가 공격 시 CombatTime 리셋
+		GetWorldTimerManager().ClearTimer(CombatTimerHandle);
+		GetWorldTimerManager().SetTimer(CombatTimerHandle, this, &AEPEnemyCharacter::EndCombat, CombatDuration, false);
+	}
+}
+
+void AEPEnemyCharacter::EndCombat()
+{
+
+	// 공격 모션이 진행 중이면 전투 종료를 보류하고 타이머 재설정
+	if (bIsAttacking)
+	{
+		GetWorldTimerManager().ClearTimer(CombatTimerHandle);
+		GetWorldTimerManager().SetTimer(CombatTimerHandle, this, &AEPEnemyCharacter::EndCombat, CombatDuration, false);
+		return;
 	}
 
+	bIsInCombat = false;	// 일정 시간이 지나면 감지 종료
+
+	AEPAIController* AIController = Cast<AEPAIController>(GetController());
+	if (AIController)
+	{
+		AIController->SetCombatState(bIsInCombat);  // 감지 해제
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Combat ended, returning to Patrol"));
 }
 
 

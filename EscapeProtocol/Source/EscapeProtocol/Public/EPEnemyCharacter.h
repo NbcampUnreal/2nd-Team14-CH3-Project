@@ -16,6 +16,11 @@ class ESCAPEPROTOCOL_API AEPEnemyCharacter : public ACharacter, public IEPEnemyI
 private:
 	bool bIsAttacking;
 	FTimerHandle CombatTimerHandle;
+	bool bIsInCombat;
+	bool PlayerDetected;
+	float CombatDuration;
+	void StartCombat();
+	void EndCombat();
 
 public:
 	AEPEnemyCharacter();
@@ -39,6 +44,11 @@ public:
 	virtual void Attack();
 	virtual void DropLoot();
 protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "State")
+	float PatrolSpeed;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "State")
+	float ChaseSpeed;
+
 	float Health;
 	float MaxHealth;
 	float AttackDamage;

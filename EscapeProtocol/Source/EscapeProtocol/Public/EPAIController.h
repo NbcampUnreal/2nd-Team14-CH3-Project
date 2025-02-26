@@ -21,6 +21,8 @@ public:
 	void SetPatrolRadius(float Radius);
 	void SetCombatState(bool State);
 	void SetTarget(AActor* Target);
+	void SetChaseSpeed(float CSpeed);
+	void SetPatrolSpeed(float PSpeed);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category="AI")

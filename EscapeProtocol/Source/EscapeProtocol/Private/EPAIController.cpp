@@ -48,7 +48,7 @@ void AEPAIController::SetCombatState(bool State)
 {
     if (BlackboardComp)
     {
-        BlackboardComp->SetValueAsBool(TEXT("PlayerDetected"), State);
+        BlackboardComp->SetValueAsBool(TEXT("isItCombat"), State);
     }
 }
 
@@ -57,6 +57,24 @@ void AEPAIController::SetTarget(AActor* Target)
     if (BlackboardComp)
     {
         BlackboardComp->SetValueAsObject(TEXT("TargetActor"), Target);
+
+    }
+}
+
+void AEPAIController::SetChaseSpeed(float CSpeed)
+{
+    if (BlackboardComp)
+    {
+        BlackboardComp->SetValueAsFloat(TEXT("ChaseSpeed"), CSpeed);
+
+    }
+}
+
+void AEPAIController::SetPatrolSpeed(float PSpeed)
+{
+    if (BlackboardComp)
+    {
+        BlackboardComp->SetValueAsFloat(TEXT("PatrolSpeed"), PSpeed);
 
     }
 }
