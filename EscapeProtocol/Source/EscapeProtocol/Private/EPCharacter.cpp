@@ -51,6 +51,12 @@ AEPCharacter::AEPCharacter()
 	TPSMovementComp->BrakingFriction = 6.0f;
 	TPSMovementComp->GroundFriction = 8.0f;
 	TPSMovementComp->BrakingDecelerationWalking = 1400.0f;
+
+	// 애니메이션 몽타쥬 관련 설정
+	PistolFireMontage = CreateDefaultSubobject<UAnimMontage>(TEXT("/Game/EPCharacters/Animations/Fire/EP_AM_Pistol_Fire.EP_AM_Pistol_Fire"));
+	RifleFireMontage = CreateDefaultSubobject<UAnimMontage>(TEXT("/Game/EPCharacters/Animations/Fire/EP_AM_Rifle_Fire.EP_AM_Rifle_Fire"));
+	ShotgunFireMontage = CreateDefaultSubobject<UAnimMontage>(TEXT("/Game/EPCharacters/Animations/Fire/EP_AM_Shotgun_Fire.EP_AM_Shotgun_Fire"));
+	
 }
 
 
@@ -201,6 +207,63 @@ void AEPCharacter::StopSprint(const FInputActionValue& Value)
 
 void AEPCharacter::Fire(const FInputActionValue& Value)
 {
+	// 단발 사격 시
+	const FName FireSectionName = FName("DryFire");
+			
+	// // 연사 사격 시
+	// FireSectionName = FName("Fire");
+
+	UAnimMontage* FireMontage = nullptr;
+	
+	if (GEngine)
+	{
+		const FString SFireSectionName = FireSectionName.ToString();
+		const FString StateName = StaticEnum<ECharacterState>()->GetValueAsString(CharacterState);
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("%s %s"), *SFireSectionName, *StateName));
+	}
+
+	
+	switch (CharacterState)
+	{
+	case ECharacterState::Pistol :
+		{
+			if (PistolFireMontage)
+			{
+				FireMontage = PistolFireMontage;
+			}
+			break;	
+		}
+	case ECharacterState::Rifle :
+		{
+			if (RifleFireMontage)
+			{
+				FireMontage = RifleFireMontage;
+			}
+			break;
+		}
+		
+	case ECharacterState::Shotgun :
+		{
+			FireMontage = ShotgunFireMontage;
+			break;
+		}
+	default :
+		{
+			CharacterState = ECharacterState::Unarmed;
+			// 무장중이 아니라는 것을 알 수 있는 로직 (ex : 사운드, UI 출력 등)
+			return;
+		}
+	}
+
+	if (FireMontage)
+	{
+		PlayAnimMontage(FireMontage, 1, FireSectionName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load Montage."))
+	}
+	
 }
 
 void AEPCharacter::Reload(const FInputActionValue& Value)

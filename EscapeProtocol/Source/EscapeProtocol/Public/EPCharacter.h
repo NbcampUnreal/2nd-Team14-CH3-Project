@@ -11,6 +11,15 @@ class UCameraComponent;
 
 struct FInputActionValue;
 
+UENUM(BlueprintType)
+enum class ECharacterState : uint8
+{
+	Unarmed		UMETA(DisplayName = "Unarmed"),
+	Pistol		UMETA(DisplayName = "Pistol"),
+	Rifle		UMETA(DisplayName = "Rifle"),
+	Shotgun		UMETA(DisplayName = "Shotgun")
+};
+
 UCLASS()
 class ESCAPEPROTOCOL_API AEPCharacter : public ACharacter
 {
@@ -55,6 +64,18 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Sprint")
     bool bIsSprinting = false;
 
+	// 애니메이션 재생 관련
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterState")
+	ECharacterState CharacterState = ECharacterState::Pistol;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+	UAnimMontage* PistolFireMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+	UAnimMontage* RifleFireMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+	UAnimMontage* ShotgunFireMontage;
+
+	
 protected:
     virtual void BeginPlay() override;
 
