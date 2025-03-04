@@ -1,12 +1,12 @@
-#include "EPAIController.h"
+ï»¿#include "EPAIController.h"
 #include "Navigation/PathFollowingComponent.h"
 
 
 AEPAIController::AEPAIController()
 {
-	// ºí·¢º¸µå ¹× ºñÇìÀÌºñ¾î Æ®¸® ÄÄÆ÷³ÍÆ® »ı¼º
+	// ë¸”ë™ë³´ë“œ ë° ë¹„í—¤ì´ë¹„ì–´ íŠ¸ë¦¬ ì»´í¬ë„ŒíŠ¸ ìƒì„±
 	BehaviorTreeComp = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
-	// ºí·¢º¸µå ÄÄÆ÷³ÍÆ® »ı¼º
+	// ë¸”ë™ë³´ë“œ ì»´í¬ë„ŒíŠ¸ ìƒì„±
     BlackboardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
 }
 
@@ -16,10 +16,10 @@ void AEPAIController::OnPossess(APawn* InPawn)
 
     if (InPawn)
     {
-        // ºí·¢º¸µå ÄÄÆ÷³ÍÆ® ¼³Á¤
+        // ë¸”ë™ë³´ë“œ ì»´í¬ë„ŒíŠ¸ ì„¤ì •
         if (UseBlackboard(BlackboardAsset, BlackboardComp))
         {
-            // ºí·¢º¸µå°¡ ¼³Á¤µÇ¾úÀ¸¸é Behavior Tree¸¦ ½ÇÇà
+            // ë¸”ë™ë³´ë“œê°€ ì„¤ì •ë˜ì—ˆìœ¼ë©´ Behavior Treeë¥¼ ì‹¤í–‰
             RunBehaviorTree(BehaviorTreeAsset);
         }
     }
@@ -48,7 +48,7 @@ void AEPAIController::SetCombatState(bool State)
 {
     if (BlackboardComp)
     {
-        BlackboardComp->SetValueAsBool(TEXT("isItCombat"), State);
+        BlackboardComp->SetValueAsBool(TEXT("IsItCombat"), State);
     }
 }
 
@@ -75,6 +75,15 @@ void AEPAIController::SetPatrolSpeed(float PSpeed)
     if (BlackboardComp)
     {
         BlackboardComp->SetValueAsFloat(TEXT("PatrolSpeed"), PSpeed);
+
+    }
+}
+
+void AEPAIController::SetAttackRange(float AttackRange)
+{
+    if (BlackboardComp)
+    {
+        BlackboardComp->SetValueAsFloat(TEXT("AttackRange"), AttackRange);
 
     }
 }

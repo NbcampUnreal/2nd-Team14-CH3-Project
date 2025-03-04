@@ -1,4 +1,4 @@
-#include "BTTask_EPAttack.h"
+ï»¿#include "BTTask_EPAttack.h"
 #include "EPAIController.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -6,7 +6,7 @@ UBTTask_EPAttack::UBTTask_EPAttack()
 {
 	NodeName = TEXT("Attack");
 	bNotifyTaskFinished = true;
-	bCreateNodeInstance = true;		// ³ëµå °´Ã¼¸¦ AI¸÷¸¶´Ù ¸¸µéµµ·Ï ÇÔ.
+	bCreateNodeInstance = true;		// ë…¸ë“œ ê°ì²´ë¥¼ AIëª¹ë§ˆë‹¤ ë§Œë“¤ë„ë¡ í•¨.
 
 
 }

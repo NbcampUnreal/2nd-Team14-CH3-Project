@@ -1,4 +1,4 @@
-#include "EPRaptor.h"
+﻿#include "EPRaptor.h"
 
 AEPRaptor::AEPRaptor()
 {
@@ -10,6 +10,7 @@ AEPRaptor::AEPRaptor()
 	Health = MaxHealth;
 	patrolRadius = 1000.0f;
 	PatrolSpeed = 400.0f;
+	AttackRange = 200.0f;
 	ChaseSpeed = 700.0f;
 
 }

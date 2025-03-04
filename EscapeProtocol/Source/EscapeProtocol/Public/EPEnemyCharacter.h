@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/ScriptDelegates.h"
@@ -48,8 +48,10 @@ protected:
 	float PatrolSpeed;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "State")
 	float ChaseSpeed;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "State")
+	float AttackRange;
 
-	float Health;
+	float Health;	
 	float MaxHealth;
 	float AttackDamage;
 	float patrolRadius;

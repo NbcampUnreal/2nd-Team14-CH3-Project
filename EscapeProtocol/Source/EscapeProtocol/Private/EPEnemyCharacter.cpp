@@ -1,4 +1,5 @@
 #include "EPEnemyCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EPCharacter.h"
 #include "EPAIController.h"
 #include "kismet/GameplayStatics.h"
@@ -7,6 +8,9 @@ AEPEnemyCharacter::AEPEnemyCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+
 	MaxHealth = 200.0f;
 	AttackDamage = 20.0f;
 	Health = MaxHealth;
@@ -14,6 +18,7 @@ AEPEnemyCharacter::AEPEnemyCharacter()
 	CombatDuration = 5.0f;
 	ChaseSpeed = 500.0f;
 	PatrolSpeed = 150.0f;
+	AttackRange = 100.0f;
 	bIsInCombat = false;
 }
 
@@ -28,6 +33,7 @@ void AEPEnemyCharacter::BeginPlay()
 		AIController->SetPatrolRadius(patrolRadius);
 		AIController->SetChaseSpeed(ChaseSpeed);
 		AIController->SetPatrolSpeed(PatrolSpeed);
+		AIController->SetAttackRange(AttackRange);
 	}
 }
 
@@ -82,7 +88,6 @@ void AEPEnemyCharacter::Attack()
 			float MontageDuration = AnimInstance->Montage_Play(AttackMontage, 1.0f);
 			if (MontageDuration > 0.f)
 			{
-				StartCombat();
 				bIsAttacking = true;
 				AEPCharacter* PlayerCharacter = Cast<AEPCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 				if (PlayerCharacter)
@@ -151,6 +156,8 @@ void AEPEnemyCharacter::EndCombat()
 
 void AEPEnemyCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	StartCombat();
+
 	if (Montage == AttackMontage)
 	{
 		bIsAttacking = false;

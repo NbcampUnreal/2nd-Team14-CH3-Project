@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "AIController.h"
@@ -23,6 +23,7 @@ public:
 	void SetTarget(AActor* Target);
 	void SetChaseSpeed(float CSpeed);
 	void SetPatrolSpeed(float PSpeed);
+	void SetAttackRange(float AttackRange);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category="AI")
@@ -30,7 +31,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "AI")
 	UBlackboardComponent* BlackboardComp;
 
-	// Blackboard¿Í Behavior Tree ¿¡¼ÂÀ» ¿¡µğÅÍ¿¡¼­ ¼³Á¤ÇÒ ¼ö ÀÖµµ·Ï Ãß°¡
+	// Blackboardì™€ Behavior Tree ì—ì…‹ì„ ì—ë””í„°ì—ì„œ ì„¤ì •í•  ìˆ˜ ìˆë„ë¡ ì¶”ê°€
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
 	UBlackboardData* BlackboardAsset;
 
