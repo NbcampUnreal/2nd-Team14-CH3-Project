@@ -51,6 +51,10 @@ public:
     void StopSprint(const FInputActionValue& Value);
     void Fire(const FInputActionValue& Value);
     void Reload(const FInputActionValue& Value);
+	void EquipRifle(const FInputActionValue& Value);
+	void EquipShotgun(const FInputActionValue& Value);
+	void EquipPistol(const FInputActionValue& Value);
+	void UnEquip(const FInputActionValue& Value);
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float NormalGroundSpeed = 600.0f;
@@ -66,7 +70,7 @@ public:
 
 	// 애니메이션 재생 관련
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterState")
-	ECharacterState CharacterState = ECharacterState::Pistol;
+	ECharacterState CharacterState = ECharacterState::Unarmed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
 	UAnimMontage* PistolFireMontage;
@@ -74,6 +78,13 @@ public:
 	UAnimMontage* RifleFireMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
 	UAnimMontage* ShotgunFireMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+	UAnimMontage* PistolReloadMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+	UAnimMontage* RifleReloadMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+	UAnimMontage* ShotgunReloadMontage;
 
 	
 protected:
@@ -83,7 +94,7 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
+	
 
 };
+
