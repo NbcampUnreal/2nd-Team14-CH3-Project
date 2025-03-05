@@ -56,7 +56,7 @@ AEPCharacter::AEPCharacter()
 	Health = 100.0f;
 	InventoryComponent = CreateDefaultSubobject<UEPInventoryComponent>(TEXT("InventoryComponent"));
 
-	//this->Tags.Add(FName("Player"));
+	this->Tags.Add(FName("Player"));
 
 }
 
