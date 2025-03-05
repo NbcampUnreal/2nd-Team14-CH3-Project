@@ -20,17 +20,27 @@ UEPGameInstance::UEPGameInstance()
 		CharacterItemDataTable = CharacterItemDataObject.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UDataTable> WeaponDataTableObject(TEXT("/Game/Weapons/WeaponData.WeaponData"));
+	if (WeaponDataTableObject.Succeeded())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponDataTableObject Find Succeed!"));
+		WeaponDataTable = WeaponDataTableObject.Object;
+	}
+
 	
 	if (CharacterItemDataTable)
 	{
 		static const FString ContextString(TEXT("Character1"));
 		CharacterItemData = CharacterItemDataTable->FindRow<FEPCharacterDataRow>(FName("CharacterData1"), ContextString);
-
-		CurrnetHandGunAmmo = CharacterItemData->HandGunAmmo;
-		CurrnetRifleAmmo = CharacterItemData->RifleAmmo;
-		CurrnetSnipeAmmo = CharacterItemData->SnipeAmmo;
-		CurrnetShotGunAmmo = CharacterItemData->ShotGunAmmo;
-		HasPotion = CharacterItemData->PotionAmount;
+		if (CharacterItemData)
+		{
+			CurrnetHandGunAmmo = CharacterItemData->HandGunAmmo;
+			CurrnetRifleAmmo = CharacterItemData->RifleAmmo;
+			CurrnetSnipeAmmo = CharacterItemData->SnipeAmmo;
+			CurrnetShotGunAmmo = CharacterItemData->ShotGunAmmo;
+			HasPotion = CharacterItemData->PotionAmount;
+		}
+		
 	}
 	
 

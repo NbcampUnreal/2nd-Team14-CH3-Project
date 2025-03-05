@@ -3,7 +3,7 @@
 
 #include "EPBaseWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
-
+#include "EPPlayerController.h"
 
 AEPBaseWeapon::AEPBaseWeapon()
 {
@@ -14,7 +14,7 @@ AEPBaseWeapon::AEPBaseWeapon()
 
 	SkeletalMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 	SkeletalMeshComp->SetupAttachment(Scene);
-	SkeletalMeshComp->SetWorldRotation(FRotator(0.0f, 90.0f, 0.0f));
+	SkeletalMeshComp->SetWorldRotation(FRotator(0.0f, -90.0f, 0.0f));
 
 }
 
