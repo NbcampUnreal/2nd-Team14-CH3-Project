@@ -40,6 +40,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Battle")
 	UInputAction* ReloadAction = nullptr;
 
+	// Equip 관련 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Equip")
+	UInputAction* EquipRifleAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Equip")
+	UInputAction* EquipShotgunAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Equip")
+	UInputAction* EquipPistolAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Equip")
+	UInputAction* UnEquipAction = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 

@@ -5,14 +5,13 @@
 #include "CoreMinimal.h"
 #include "EPGun.h"
 
-
 #include "EPAssaultRifle.generated.h"
 
 /**
  * 
  */
 class USkeletalMeshComponent;
-
+class UParticleSystemComponent;
 
 UCLASS()
 class ESCAPEPROTOCOL_API AEPAssaultRifle : public AEPGun
@@ -27,6 +26,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Property")
 	FTransform MuzzleTransform;
 
+	
 
 	UFUNCTION(BlueprintCallable)
 	virtual void FireGun() override;
@@ -36,4 +36,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual EWeaponType GetWeaponType() const override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Property")
+	UClass* BulletBlueprint;
 };

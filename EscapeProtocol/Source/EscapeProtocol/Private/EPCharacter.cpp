@@ -51,6 +51,13 @@ AEPCharacter::AEPCharacter()
 	TPSMovementComp->BrakingFriction = 6.0f;
 	TPSMovementComp->GroundFriction = 8.0f;
 	TPSMovementComp->BrakingDecelerationWalking = 1400.0f;
+
+
+	Health = 100.0f;
+	InventoryComponent = CreateDefaultSubobject<UEPInventoryComponent>(TEXT("InventoryComponent"));
+
+	this->Tags.Add(FName("Player"));
+
 }
 
 
@@ -175,6 +182,7 @@ void AEPCharacter::StopCrouch(const FInputActionValue& Value)
 		bIsCrouching = false;
 
 	}
+
 }
 
 void AEPCharacter::StartSprint(const FInputActionValue& Value)
@@ -199,19 +207,174 @@ void AEPCharacter::StopSprint(const FInputActionValue& Value)
 	}
 }
 
+void AEPCharacter::EquipRifle(const FInputActionValue& Value)
+{
+	const bool EquipInput = Value.Get<bool>();
+	if (EquipInput)
+	{
+		CharacterState = ECharacterState::Rifle;
+		UE_LOG(LogTemp, Display, TEXT("EquipRifle"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("Fail to EquipRifle"));
+	}
+}
+
+void AEPCharacter::EquipShotgun(const FInputActionValue& Value)
+{
+	const bool EquipInput = Value.Get<bool>();
+	if (EquipInput)
+	{
+		CharacterState = ECharacterState::Shotgun;
+	}
+}
+
+void AEPCharacter::EquipPistol(const FInputActionValue& Value)
+{
+	const bool EquipInput = Value.Get<bool>();
+	if (EquipInput)
+	{
+		CharacterState = ECharacterState::Pistol;
+	}
+}
+
+void AEPCharacter::UnEquip(const FInputActionValue& Value)
+{
+	const bool UnEquipInput = Value.Get<bool>();
+	if (UnEquipInput)
+	{
+		CharacterState = ECharacterState::Unarmed;
+	}
+}
+
+
 void AEPCharacter::Fire(const FInputActionValue& Value)
 {
+	// // 연사 사격 시
+	// const FName FireSectionName = FName("Fire");
+
+	UAnimMontage* FireMontage = nullptr;
+
+	if (CharacterState == ECharacterState::Unarmed)
+	{
+		return;
+	}
+	
+	switch (CharacterState)
+	{
+	case ECharacterState::Pistol :
+		{
+			if (PistolFireMontage)
+			{
+				FireMontage = PistolFireMontage;
+			}
+			break;	
+		}
+	case ECharacterState::Rifle :
+		{
+			if (RifleFireMontage)
+			{
+				FireMontage = RifleFireMontage;
+			}
+			break;
+		}
+		
+	case ECharacterState::Shotgun :
+		{
+			if (ShotgunFireMontage)
+			{
+				FireMontage = ShotgunFireMontage;
+			}
+			break;
+		}
+	default :
+		{
+			CharacterState = ECharacterState::Unarmed;
+			// 무장중이 아니라는 것을 알 수 있는 로직 (ex : 사운드, UI 출력 등)
+			return;
+		}
+	}
+
+	if (FireMontage)
+	{
+		FName FireSection = FName(TEXT("Fire"));
+		PlayAnimMontage(FireMontage, 1, FireSection);
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load Fire Montage."))
+	}
+	
 }
 
 void AEPCharacter::Reload(const FInputActionValue& Value)
 {
+	UAnimMontage* ReloadMontage = nullptr;
+	if (CharacterState == ECharacterState::Unarmed)
+	{
+		return;
+	}
+	
+	switch (CharacterState)
+	{
+	case ECharacterState::Pistol :
+		{
+			if (PistolReloadMontage)
+			{
+				ReloadMontage = PistolReloadMontage;
+			}
+			break;	
+		}
+	case ECharacterState::Rifle :
+		{
+			if (RifleReloadMontage)
+			{
+				ReloadMontage = RifleReloadMontage;
+				UE_LOG(LogTemp, Display, TEXT("Play RifleReloadMontage"));
+			}
+			break;
+		}
+		
+	case ECharacterState::Shotgun :
+		{
+			if (ShotgunReloadMontage)
+			{
+				ReloadMontage = ShotgunReloadMontage;
+				UE_LOG(LogTemp, Display, TEXT("Play ShotgunReloadMontage"));
+			}
+			break;
+		}
+	default :
+		{
+			CharacterState = ECharacterState::Unarmed;
+			// 무장중이 아니라는 것을 알 수 있는 로직 (ex : 사운드, UI 출력 등)
+			return;
+		}
+	}
+
+	if (ReloadMontage)
+	{
+		FName ReloadSection = FName(TEXT("Reload"));
+		PlayAnimMontage(ReloadMontage, 1, ReloadSection);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load Reload Montage."))
+	}
 }
+
 
 void AEPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+
 }
+
+
 
 void AEPCharacter::Tick(float DeltaTime)
 {
@@ -319,5 +482,52 @@ void AEPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 			this,
 			&AEPCharacter::Reload);
 	}
+
+	if (PlayerController->EquipRifleAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->EquipRifleAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::EquipRifle);
+	}
+
+	if (PlayerController->EquipShotgunAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->EquipShotgunAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::EquipShotgun);
+	}
+
+	if (PlayerController->EquipPistolAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->EquipPistolAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::EquipPistol);
+	}
+
+	if (PlayerController->UnEquipAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->UnEquipAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::UnEquip);
+	}
 }
+
+void AEPCharacter::AddHealth(float value)
+{
+	Health += value;
+	if (Health > 100.0f)
+	{
+		Health = 100.0f;
+	}
+
+}
+
 
