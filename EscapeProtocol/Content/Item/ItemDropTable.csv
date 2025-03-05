@@ -1,0 +1,7 @@
+,ItemName,ItemClass,SpawnChance
+VoidItem,VoidItem,None,40
+HandGunBullet,HandGunBullet,/Script/Engine.Blueprint'/Game/Item/BP_HandGunBullet.BP_HandGunBullet_C',25
+RifleBullet,RifleBullet,/Script/Engine.Blueprint'/Game/Item/BP_RifleBullet.BP_RifleBullet_C',15
+ShotGunBullet,ShotGunBullet,/Script/Engine.Blueprint'/Game/Item/BP_ShotGunBullet.BP_ShotGunBullet_C',9
+SnipeBullet,SnipeBullet,/Script/Engine.Blueprint'/Game/Item/BP_SnipeBullet.BP_SnipeBullet_C',6
+Potion,Potion,/Script/Engine.Blueprint'/Game/Item/BP_PotionItem.BP_PotionItem_C',5
