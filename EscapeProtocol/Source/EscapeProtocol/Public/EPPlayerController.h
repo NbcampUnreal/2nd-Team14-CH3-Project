@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "EPWeaponHUD.h"  //  HUD 클래스 포함
+#include "EPWeaponInterface.h"  //  EWeaponType 포함
 #include "EPPlayerController.generated.h"
-
 
 class UInputAction;
 class UInputMappingContext;
@@ -54,12 +55,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Ads")
 	UInputAction* AdsAction = nullptr;
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UUserWidget> HUDWidgetClass;
+	TSubclassOf<UEPWeaponHUD> HUDWidgetClass;  //  기존 UUserWidget → UEPWeaponHUD로 변경
+
+	UPROPERTY()
+	UEPWeaponHUD* HUDWidget;  // HUD 인스턴스
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;  // 입력 처리 함수 추가
 
 	void AddInputMappingContext() const;
 
+	// 무기 선택 시 HUD 변경 기능 추가
+	void SelectPistol();
+	void SelectRifle();
+	void SelectShotgun();
 };

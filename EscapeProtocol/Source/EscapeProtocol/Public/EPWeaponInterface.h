@@ -6,6 +6,14 @@
 #include "UObject/Interface.h"
 #include "EPWeaponInterface.generated.h"
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	HandGun UMETA(DisplayName = "HandGun"),
+	Rifle UMETA(DisplayName = "Rifle"),
+	Shotgun UMETA(DisplayName = "Shotgun")
+};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UEPWeaponInterface : public UInterface
@@ -13,16 +21,8 @@ class UEPWeaponInterface : public UInterface
 	GENERATED_BODY()
 };
 
-UENUM(BlueprintType)
-enum class EWeaponType : uint8
-{
-	HandGun,
-	Rifle,
-	Sniper
-};
-
 /**
- * 
+ *
  */
 class ESCAPEPROTOCOL_API IEPWeaponInterface
 {
@@ -38,6 +38,4 @@ public:
 
 	UFUNCTION()
 	virtual EWeaponType GetWeaponType()const = 0;
-
-
 };
