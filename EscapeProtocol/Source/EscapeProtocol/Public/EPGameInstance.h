@@ -51,6 +51,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EPGameData")
 	int32 HasPotion;
-
-
+	
+	
 };
