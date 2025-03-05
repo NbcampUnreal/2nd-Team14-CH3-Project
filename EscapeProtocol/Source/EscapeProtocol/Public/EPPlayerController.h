@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Equip")
 	UInputAction* UnEquipAction = nullptr;
 
+	// Ads 관련
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input|Ads")
+	UInputAction* AdsAction = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 

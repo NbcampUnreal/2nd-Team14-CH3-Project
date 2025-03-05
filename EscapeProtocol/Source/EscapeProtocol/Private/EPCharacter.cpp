@@ -19,7 +19,7 @@ AEPCharacter::AEPCharacter()
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 350;
-	SpringArmComp->SocketOffset = CameraSocketOffset;
+	SpringArmComp->SocketOffset = FVector(0.f, 40.f, 80.f);
 
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
@@ -238,6 +238,27 @@ void AEPCharacter::UnEquip(const FInputActionValue& Value)
 	if (UnEquipInput)
 	{
 		CharacterState = ECharacterState::Unarmed;
+	}
+}
+
+void AEPCharacter::AimingDownSight(const FInputActionValue& Value)
+{
+	const bool AdsInput = Value.Get<bool>();
+	if (AdsInput)
+	{
+		// 블루 프린트에서 bIsAds 값에 따라 SpringArm 의 Length 를 변환 시킬 예정
+		bIsZooming = true;
+		ZoomIn();
+	}
+}
+
+void AEPCharacter::ReleaseAimingDownSight(const FInputActionValue& Value)
+{
+	const bool AdsInput = Value.Get<bool>();
+	if (!AdsInput)
+	{
+		bIsZooming = false;
+		ZoomOut();
 	}
 }
 
@@ -506,6 +527,21 @@ void AEPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 			ETriggerEvent::Triggered,
 			this,
 			&AEPCharacter::UnEquip);
+	}
+
+	if (PlayerController->AdsAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->AdsAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::AimingDownSight);
+
+		EnhancedInputComponent->BindAction(
+			PlayerController->AdsAction,
+			ETriggerEvent::Completed,
+			this,
+			&AEPCharacter::ReleaseAimingDownSight);
 	}
 }
 

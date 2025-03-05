@@ -34,8 +34,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
     UCameraComponent* CameraComp;
 
-    FVector CameraSocketOffset = FVector(0.f, 40.f, 80.f);
-
     // 캐릭터 무브먼트 관련
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     UCharacterMovementComponent* TPSMovementComp = GetCharacterMovement();
@@ -55,6 +53,8 @@ public:
 	void EquipShotgun(const FInputActionValue& Value);
 	void EquipPistol(const FInputActionValue& Value);
 	void UnEquip(const FInputActionValue& Value);
+	void AimingDownSight(const FInputActionValue& Value);
+	void ReleaseAimingDownSight(const FInputActionValue& Value);
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float NormalGroundSpeed = 600.0f;
@@ -67,6 +67,13 @@ public:
     bool bIsJumping = false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Sprint")
     bool bIsSprinting = false;
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ActionState|Ads")
+	void ZoomIn();
+	UFUNCTION(BlueprintImplementableEvent, Category = "ActionState|Ads")
+	void ZoomOut();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActionState|Ads")
+	bool bIsZooming = false;
 
 	// 애니메이션 재생 관련
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterState")
