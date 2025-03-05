@@ -51,6 +51,13 @@ AEPCharacter::AEPCharacter()
 	TPSMovementComp->BrakingFriction = 6.0f;
 	TPSMovementComp->GroundFriction = 8.0f;
 	TPSMovementComp->BrakingDecelerationWalking = 1400.0f;
+
+
+	Health = 100.0f;
+	InventoryComponent = CreateDefaultSubobject<UEPInventoryComponent>(TEXT("InventoryComponent"));
+
+	//this->Tags.Add(FName("Player"));
+
 }
 
 
@@ -175,6 +182,7 @@ void AEPCharacter::StopCrouch(const FInputActionValue& Value)
 		bIsCrouching = false;
 
 	}
+
 }
 
 void AEPCharacter::StartSprint(const FInputActionValue& Value)
@@ -211,7 +219,11 @@ void AEPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+
 }
+
+
 
 void AEPCharacter::Tick(float DeltaTime)
 {
@@ -320,4 +332,15 @@ void AEPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 			&AEPCharacter::Reload);
 	}
 }
+
+void AEPCharacter::AddHealth(float value)
+{
+	Health += value;
+	if (Health > 100.0f)
+	{
+		Health = 100.0f;
+	}
+
+}
+
 

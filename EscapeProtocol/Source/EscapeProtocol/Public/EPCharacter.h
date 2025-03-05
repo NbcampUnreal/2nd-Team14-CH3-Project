@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "EPInventoryComponent.h"
 #include "EPCharacter.generated.h"
 
 class USpringArmComponent;
@@ -31,6 +32,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     UCharacterMovementComponent* TPSMovementComp = GetCharacterMovement();
 
+
     // 캐릭터 Action 관련 
     void Move(const FInputActionValue& Value);
     void Look(const FInputActionValue& Value);
@@ -55,6 +57,19 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Sprint")
     bool bIsSprinting = false;
 
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Inventory")
+    UEPInventoryComponent* InventoryComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|HP")
+    float Health;
+
+
+
+
+
+
+
 protected:
     virtual void BeginPlay() override;
 
@@ -63,6 +78,6 @@ public:
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
+    void AddHealth(float value);
 
 };
