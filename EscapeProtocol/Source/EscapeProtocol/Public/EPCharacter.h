@@ -9,7 +9,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-
+class UEPWeaponComponent;
 struct FInputActionValue;
 
 UENUM(BlueprintType)
@@ -103,9 +103,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|HP")
     float Health;
 
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Information|Weapon")
+    UEPWeaponComponent* WeaponComponent;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
+    USkeletalMeshComponent* WeaponMeshComponent;
 
+    USkeletalMesh* RifleMesh;
 
+    USkeletalMesh* ShotGunMesh;
 
+    USkeletalMesh* HandGunMesh;
 
 
 
