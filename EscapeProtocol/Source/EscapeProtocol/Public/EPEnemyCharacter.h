@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/ScriptDelegates.h"
@@ -16,6 +16,13 @@ class ESCAPEPROTOCOL_API AEPEnemyCharacter : public ACharacter, public IEPEnemyI
 private:
 	bool bIsAttacking;
 	FTimerHandle CombatTimerHandle;
+	bool bIsInCombat;
+	bool PlayerDetected;
+	float CombatDuration;
+	void StartCombat();
+	void EndCombat();
+	bool bIsDead;
+	
 
 public:
 	AEPEnemyCharacter();
@@ -26,6 +33,8 @@ public:
 	FOnAttackEnded OnAttackEnded;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	UAnimMontage* AttackMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UAnimMontage* DeathMontage;
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	UFUNCTION(BlueprintPure, Category = "State")
@@ -39,10 +48,18 @@ public:
 	virtual void Attack();
 	virtual void DropLoot();
 protected:
-	float Health;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "State")
+	float PatrolSpeed;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "State")
+	float ChaseSpeed;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "State")
+	float AttackRange;
+
+	float Health;	
 	float MaxHealth;
 	float AttackDamage;
 	float patrolRadius;
+	FName HeadBoneName;
 
 
 	
