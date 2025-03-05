@@ -21,6 +21,8 @@ private:
 	float CombatDuration;
 	void StartCombat();
 	void EndCombat();
+	bool bIsDead;
+	
 
 public:
 	AEPEnemyCharacter();
@@ -31,6 +33,8 @@ public:
 	FOnAttackEnded OnAttackEnded;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	UAnimMontage* AttackMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UAnimMontage* DeathMontage;
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	UFUNCTION(BlueprintPure, Category = "State")
@@ -55,6 +59,7 @@ protected:
 	float MaxHealth;
 	float AttackDamage;
 	float patrolRadius;
+	FName HeadBoneName;
 
 
 	

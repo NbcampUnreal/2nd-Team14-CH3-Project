@@ -33,7 +33,7 @@ protected:
     bool bCanCombo;
 
     /** 콤보 공격에 사용할 몽타주들 (0 ~ N) */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combo")
     TArray<UAnimMontage*> ComboMontages;
 
     // 공격 진행 중인지 판단 (부모에 있는 bIsAttacking을 활용할 수도 있음)

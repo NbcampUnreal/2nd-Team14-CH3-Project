@@ -12,5 +12,6 @@ AEPRaptor::AEPRaptor()
 	PatrolSpeed = 400.0f;
 	AttackRange = 200.0f;
 	ChaseSpeed = 700.0f;
+	HeadBoneName = FName(TEXT("Goblin_head"));
 
 }

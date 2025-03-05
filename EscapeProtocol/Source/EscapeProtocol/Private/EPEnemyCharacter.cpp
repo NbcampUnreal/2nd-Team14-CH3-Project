@@ -1,12 +1,16 @@
-#include "EPEnemyCharacter.h"
+ï»¿#include "EPEnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/DamageEvents.h"
 #include "EPCharacter.h"
 #include "EPAIController.h"
+#include "Components/CapsuleComponent.h"
 #include "kismet/GameplayStatics.h"
 
 AEPEnemyCharacter::AEPEnemyCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
+
+	Tags.Add(FName("Enemy"));
 
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -20,6 +24,8 @@ AEPEnemyCharacter::AEPEnemyCharacter()
 	PatrolSpeed = 150.0f;
 	AttackRange = 100.0f;
 	bIsInCombat = false;
+	HeadBoneName = FName(TEXT("head"));
+	bIsDead = false;
 }
 
 void AEPEnemyCharacter::BeginPlay()
@@ -54,21 +60,64 @@ float AEPEnemyCharacter::GetAttackerPower() const
 
 float AEPEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	DamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	
-	Health -= DamageAmount;
-
-	UE_LOG(LogTemp, Warning, TEXT("Enemy took damage: %f, Remaining Health: %f"), DamageAmount, Health);
-
-	// Ã¼·ÂÀÌ 0 ÀÌÇÏ¶ó¸é »ç¸Á Ã³¸®
-	if (Health <= 0.f)
+	if (bIsDead)
 	{
-		Health = 0.f;
-		DropLoot(); // Àü¸®Ç° µå·Ó
-		Destroy();  // Àû Á¦°Å
+		return 0.f;
 	}
 
-	return DamageAmount;
+
+	float ModifiedDamage = DamageAmount;
+
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+		if (PointDamageEvent && PointDamageEvent->HitInfo.BoneName == HeadBoneName)
+		{
+			ModifiedDamage *= 4.0f;
+			UE_LOG(LogTemp, Warning, TEXT("Headshot! Damage doubled to: %f"), ModifiedDamage);
+		}
+	}
+
+
+	ModifiedDamage = Super::TakeDamage(ModifiedDamage, DamageEvent, EventInstigator, DamageCauser);
+	
+	Health -= ModifiedDamage;
+
+	UE_LOG(LogTemp, Warning, TEXT("Enemy took damage: %f, Remaining Health: %f"), ModifiedDamage, Health);
+
+	// ì²´ë ¥ì´ 0 ì´í•˜ë¼ë©´ ì‚¬ë§ ì²˜ë¦¬
+	if (Health <= 0.f)
+	{
+		Health = 0.0f;
+		bIsDead = true;
+
+		if (DeathMontage)
+		{
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				float MontageDuration = AnimInstance->Montage_Play(DeathMontage, 1.0f);
+				UE_LOG(LogTemp, Warning, TEXT("Playing DeathMontage, Duration: %f"), MontageDuration);
+			}
+		}
+		// AnimInstanceë¥¼ ì¤‘ì§€ì‹œí‚¤ê³  RagDoll í™œì„±í™”
+		GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+		GetMesh()->SetSimulatePhysics(true);
+		// ì• ë‹ˆë©”ì´ì…˜ ëª¨ë“œë¥¼ ë¬¼ë¦¬ ì‹œë®¬ë ˆì´ì…˜ì— ë§ê²Œ ë³€ê²½
+		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+
+		AEPAIController* AIController = Cast<AEPAIController>(GetController());
+		if (AIController)
+		{
+			AIController->UnPossess();
+		}
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		SetActorTickEnabled(false);
+
+		DropLoot();
+	}
+
+	return ModifiedDamage;
 }
 
 
@@ -116,16 +165,16 @@ void AEPEnemyCharacter::StartCombat()
 
 		GetWorldTimerManager().SetTimer(CombatTimerHandle, this, &AEPEnemyCharacter::EndCombat, CombatDuration, false);
 
-		// Blackboard °ª º¯°æ
+		// Blackboard ê°’ ë³€ê²½
 		AEPAIController* AIController = Cast<AEPAIController>(GetController());
 		if (AIController)
 		{
-			AIController->SetCombatState(bIsInCombat);  // °­Á¦·Î °¨Áö À¯Áö
+			AIController->SetCombatState(bIsInCombat);  // ê°•ì œë¡œ ê°ì§€ ìœ ì§€
 		}
 	}
 	else
 	{
-		// ÀüÅõ Áß Ãß°¡ °ø°İ ½Ã CombatTime ¸®¼Â
+		// ì „íˆ¬ ì¤‘ ì¶”ê°€ ê³µê²© ì‹œ CombatTime ë¦¬ì…‹
 		GetWorldTimerManager().ClearTimer(CombatTimerHandle);
 		GetWorldTimerManager().SetTimer(CombatTimerHandle, this, &AEPEnemyCharacter::EndCombat, CombatDuration, false);
 	}
@@ -134,7 +183,7 @@ void AEPEnemyCharacter::StartCombat()
 void AEPEnemyCharacter::EndCombat()
 {
 
-	// °ø°İ ¸ğ¼ÇÀÌ ÁøÇà ÁßÀÌ¸é ÀüÅõ Á¾·á¸¦ º¸·ùÇÏ°í Å¸ÀÌ¸Ó Àç¼³Á¤
+	// ê³µê²© ëª¨ì…˜ì´ ì§„í–‰ ì¤‘ì´ë©´ ì „íˆ¬ ì¢…ë£Œë¥¼ ë³´ë¥˜í•˜ê³  íƒ€ì´ë¨¸ ì¬ì„¤ì •
 	if (bIsAttacking)
 	{
 		GetWorldTimerManager().ClearTimer(CombatTimerHandle);
@@ -142,12 +191,12 @@ void AEPEnemyCharacter::EndCombat()
 		return;
 	}
 
-	bIsInCombat = false;	// ÀÏÁ¤ ½Ã°£ÀÌ Áö³ª¸é °¨Áö Á¾·á
+	bIsInCombat = false;	// ì¼ì • ì‹œê°„ì´ ì§€ë‚˜ë©´ ê°ì§€ ì¢…ë£Œ
 
 	AEPAIController* AIController = Cast<AEPAIController>(GetController());
 	if (AIController)
 	{
-		AIController->SetCombatState(bIsInCombat);  // °¨Áö ÇØÁ¦
+		AIController->SetCombatState(bIsInCombat);  // ê°ì§€ í•´ì œ
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Combat ended, returning to Patrol"));
@@ -164,6 +213,7 @@ void AEPEnemyCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 		OnAttackEnded.Broadcast();
 	}
 }
+
 
 void AEPEnemyCharacter::DropLoot()
 {
