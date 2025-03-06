@@ -16,9 +16,7 @@
 AEPCharacter::AEPCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 	
-
 	// 카메라 관련
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->SetupAttachment(RootComponent);
@@ -163,6 +161,14 @@ void AEPCharacter::StartJump(const FInputActionValue& Value)
 		Jump();
 
 	}
+}
+
+// 웅크린 상태에서 점프 가능하게 리턴 값에서 bIsCrouched 체크를 제외 
+bool AEPCharacter::CanJumpInternal_Implementation() const
+{
+	Super::CanJumpInternal_Implementation();
+	
+	return TPSMovementComp->CanAttemptJump();
 }
 
 void AEPCharacter::StopJump(const FInputActionValue& Value)

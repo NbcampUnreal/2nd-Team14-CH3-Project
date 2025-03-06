@@ -58,6 +58,9 @@ public:
 	void AimingDownSight(const FInputActionValue& Value);
 	void ReleaseAimingDownSight(const FInputActionValue& Value);
 
+	// 웅크린 자세에서 점프가 가능하게 하기 위해 오버라이드
+	virtual bool CanJumpInternal_Implementation() const override;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float NormalGroundSpeed = 600.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
