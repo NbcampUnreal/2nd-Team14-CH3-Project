@@ -8,12 +8,15 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
+#include "EPWeaponComponent.h"
 
 #include "EPPlayerController.h"
 
 AEPCharacter::AEPCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	
 
 	// 카메라 관련
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
@@ -52,10 +55,35 @@ AEPCharacter::AEPCharacter()
 	TPSMovementComp->GroundFriction = 8.0f;
 	TPSMovementComp->BrakingDecelerationWalking = 1400.0f;
 
+	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMeshComponent"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> RifleMeshs(TEXT("/Game/Weapons/Rifle/Mesh/SK_Rifle.SK_Rifle"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HandGunMeshs(TEXT("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ShotGunMeshs(TEXT("/Game/Weapons/Shotgun/Mesh/SKM_Shotgun.SKM_Shotgun"));
+	
+	if (RifleMeshs.Succeeded())
+	{
+		RifleMesh = RifleMeshs.Object;
+		UE_LOG(LogTemp, Warning, TEXT("RifleMesh Succeed!!"));
+
+	}
+	if (HandGunMeshs.Succeeded())
+	{
+		HandGunMesh = HandGunMeshs.Object;
+		UE_LOG(LogTemp, Warning, TEXT("HandGunMesh Succeed!!"));
+
+	}
+	if (ShotGunMeshs.Succeeded())
+	{
+		ShotGunMesh = ShotGunMeshs.Object;
+		UE_LOG(LogTemp, Warning, TEXT("ShotGunMesh Succeed!!"));
+
+	}
+
+	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("hand_r_ability_socket"));
 
 	Health = 100.0f;
 	InventoryComponent = CreateDefaultSubobject<UEPInventoryComponent>(TEXT("InventoryComponent"));
-
+	WeaponComponent = CreateDefaultSubobject<UEPWeaponComponent>(TEXT("WeaponComponent"));
 	this->Tags.Add(FName("Player"));
 
 }
@@ -213,6 +241,11 @@ void AEPCharacter::EquipRifle(const FInputActionValue& Value)
 	if (EquipInput)
 	{
 		CharacterState = ECharacterState::Rifle;
+		if (RifleMesh)
+		{
+			WeaponMeshComponent->SetSkeletalMesh(RifleMesh);
+		}
+		
 		UE_LOG(LogTemp, Display, TEXT("EquipRifle"));
 	}
 	else
@@ -226,6 +259,10 @@ void AEPCharacter::EquipShotgun(const FInputActionValue& Value)
 	const bool EquipInput = Value.Get<bool>();
 	if (EquipInput)
 	{
+		if (ShotGunMesh)
+		{
+			WeaponMeshComponent->SetSkeletalMesh(ShotGunMesh);
+		}
 		CharacterState = ECharacterState::Shotgun;
 	}
 }
@@ -235,6 +272,10 @@ void AEPCharacter::EquipPistol(const FInputActionValue& Value)
 	const bool EquipInput = Value.Get<bool>();
 	if (EquipInput)
 	{
+		if (HandGunMesh)
+		{
+			WeaponMeshComponent->SetSkeletalMesh(HandGunMesh);
+		}
 		CharacterState = ECharacterState::Pistol;
 	}
 }
@@ -297,7 +338,9 @@ void AEPCharacter::Fire(const FInputActionValue& Value)
 			if (RifleFireMontage)
 			{
 				FireMontage = RifleFireMontage;
+				
 			}
+			
 			break;
 		}
 		
@@ -315,6 +358,12 @@ void AEPCharacter::Fire(const FInputActionValue& Value)
 			// 무장중이 아니라는 것을 알 수 있는 로직 (ex : 사운드, UI 출력 등)
 			return;
 		}
+	}
+	if (WeaponComponent)
+	{
+		WeaponComponent->GunFire();
+		//UE_LOG(LogTemp, Warning, TEXT("Fire!!"));
+
 	}
 
 	if (FireMontage)
@@ -354,6 +403,7 @@ void AEPCharacter::Reload(const FInputActionValue& Value)
 			{
 				ReloadMontage = RifleReloadMontage;
 				UE_LOG(LogTemp, Display, TEXT("Play RifleReloadMontage"));
+				
 			}
 			break;
 		}
@@ -374,6 +424,15 @@ void AEPCharacter::Reload(const FInputActionValue& Value)
 			return;
 		}
 	}
+
+	if (WeaponComponent)
+	{
+		WeaponComponent->Reload();
+		//UE_LOG(LogTemp, Warning, TEXT("Fire!!"));
+
+	}
+
+
 
 	if (ReloadMontage)
 	{

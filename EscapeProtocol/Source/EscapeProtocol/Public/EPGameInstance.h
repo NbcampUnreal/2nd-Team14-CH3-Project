@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "EPCharacterDataRow.h"
 #include "EPItemSpanwRow.h"
+#include "EPWeaponDataRow.h"
 #include "EPGameInstance.generated.h"
 
 /**
@@ -28,6 +29,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EPGameData")
 	UDataTable* CharacterItemDataTable;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EPGameData")
+	UDataTable* WeaponDataTable;
+
 	FEPCharacterDataRow* CharacterItemData;
 
 	FEPItemSpawnRow* SpawnItemData;
@@ -47,6 +51,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EPGameData")
 	int32 HasPotion;
-
-
+	
+	
 };

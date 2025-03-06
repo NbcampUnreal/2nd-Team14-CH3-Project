@@ -3,6 +3,7 @@
 
 #include "EPBullet.h"
 #include "Particles/ParticleSystem.h"
+#include "EPPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 // Sets default values
 AEPBullet::AEPBullet()
@@ -35,8 +36,13 @@ void AEPBullet::BeginPlay()
 
 	FHitResult Hit;
 	FVector StartTrace = GetActorLocation();
-	FVector EndTrace = (GetActorRotation().Vector() * Range) + StartTrace;
-	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, true);
+	
+	APlayerCameraManager* CameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+	FVector Loc = CameraManager->GetCameraLocation();
+	FVector Rot = CameraManager->GetActorForwardVector();
+
+	FVector EndTrace = (Rot * Range) + Loc;
+	DrawDebugLine(GetWorld(), StartTrace, EndTrace,FColor::Red,true);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleEffect, StartTrace);
 	if (GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_GameTraceChannel1))
 	{

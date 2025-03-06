@@ -9,10 +9,10 @@
 /**
  * 
  */
-USTRUCT(BlueprintType)
+USTRUCT(Atomic, BlueprintType)
 struct FEPItemSpawnRow : public FTableRowBase
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
 
 public:
