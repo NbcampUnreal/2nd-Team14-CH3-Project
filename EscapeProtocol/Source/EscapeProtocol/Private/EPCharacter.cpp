@@ -629,8 +629,18 @@ float AEPCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	{
 		return 0.f;
 	}
-
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+
+	if (HitMontage)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(HitMontage, 1.0f, EMontagePlayReturnType::Duration, 0.0f, true);
+			UE_LOG(LogTemp, Warning, TEXT("Playing HitMontage, Duration: %f"), MontageDuration);
+		}
+	}
 	UE_LOG(LogTemp, Warning, TEXT("Player takeDamage : %f"), DamageAmount);
 	Health -= DamageAmount;
 	UE_LOG(LogTemp, Warning, TEXT("Player took damage: %f, Remaining Health: %f"), DamageAmount, Health);

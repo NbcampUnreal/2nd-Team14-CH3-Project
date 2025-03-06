@@ -3,6 +3,7 @@
 #include "Engine/DamageEvents.h"
 #include "EPCharacter.h"
 #include "EPAIController.h"
+#include "EPItemSpawnComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "kismet/GameplayStatics.h"
 
@@ -229,4 +230,8 @@ void AEPEnemyCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 
 void AEPEnemyCharacter::DropLoot()
 {
+	if (UEPItemSpawnComponent* ItemSpawner = FindComponentByClass<UEPItemSpawnComponent>())
+	{
+		ItemSpawner->SpawnItem(GetActorLocation());
+	}
 }

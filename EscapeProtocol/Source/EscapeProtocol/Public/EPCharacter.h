@@ -99,7 +99,8 @@ public:
 	UAnimMontage* ShotgunReloadMontage;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
     UAnimMontage* DeathMontage;
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+    UAnimMontage* HitMontage;
 	
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Inventory")
