@@ -15,6 +15,9 @@ void AEPGameState::BeginPlay()
 	Super::BeginPlay();
 
 	StartLevel();
+	EPBook = false;
+
+
 
 }
 
@@ -34,5 +37,10 @@ void AEPGameState::StartLevel()
 
 void AEPGameState::EndLevel()
 {
+}
+
+bool AEPGameState::GetEPBook()
+{
+	return EPBook;
 }
 

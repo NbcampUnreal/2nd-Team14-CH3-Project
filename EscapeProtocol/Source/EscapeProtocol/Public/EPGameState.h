@@ -33,6 +33,10 @@ public:
 
 	FTimerHandle LevelTimerHandle;
 
+	bool EPBook;
+	bool GetEPBook();
+	
+
 	UFUNCTION(BlueprintPure, Category = "Score")
 	int32 GetScore() const;
 
