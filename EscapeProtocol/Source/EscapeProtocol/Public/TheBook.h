@@ -30,6 +30,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Book|Component")
     UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effects")
+	USoundBase* PickupSound;
+
 	UFUNCTION()
 	void OnItemOverlap(
 		UPrimitiveComponent* OverlappedComp,

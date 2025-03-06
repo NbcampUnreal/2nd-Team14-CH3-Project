@@ -2,9 +2,11 @@
 
 #pragma once
 
+#include "Sound/SoundCue.h"
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
 #include "EPGameState.generated.h"
+
 
 /**
  * 
@@ -22,6 +24,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Score")
 	int32 Score;
 
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")
 	int32 CurrentLevelIndex;
 
@@ -32,6 +35,12 @@ public:
 	TArray<FName> LevelMapNames;
 
 	FTimerHandle LevelTimerHandle;
+
+
+	UFUNCTION()
+	void EndGame();
+
+
 
 	bool EPBook;
 	bool GetEPBook();
@@ -45,4 +54,17 @@ public:
 
 	void StartLevel();
 	void EndLevel();
+
+	void PlayBackgroundMusic();
+	// 배경음악을 멈추는 함수
+	void StopBackgroundMusic();
+
+	// 배경음악 Sound Cue
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+	USoundCue* BackgroundMusic;
+
+private:
+	// 배경음악을 재생하는 AudioComponent
+	UAudioComponent* AudioComponent;
+
 };
