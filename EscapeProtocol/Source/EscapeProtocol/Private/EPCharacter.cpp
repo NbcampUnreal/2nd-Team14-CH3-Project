@@ -11,6 +11,7 @@
 #include "EPWeaponComponent.h"
 
 #include "EPPlayerController.h"
+#include "DrawDebugHelpers.h"
 
 AEPCharacter::AEPCharacter()
 {
@@ -151,6 +152,8 @@ void AEPCharacter::StartJump(const FInputActionValue& Value)
 	const bool JumpInput = Value.Get<bool>();
 	if (JumpInput)
 	{
+		bIsJumping = true;
+		
 		// Jump() 는 Crouch() 도중에 사용할 수 없어서 UnCrouch() 부터 실행
 		if (bIsCrouching)
 		{
@@ -158,7 +161,6 @@ void AEPCharacter::StartJump(const FInputActionValue& Value)
 		}
 
 		Jump();
-		bIsJumping = true;
 
 	}
 }
@@ -193,14 +195,13 @@ void AEPCharacter::StopCrouch(const FInputActionValue& Value)
 	if (!CrouchInput)
 	{
 		const FVector CharacterLocation = GetActorLocation();
-		const FVector CharacterUpVector = GetActorUpVector();
-		const FVector UpRayDirection = 100.f*CharacterUpVector;
+		const FVector CharacterUpVector = CharacterLocation + 150*GetActorUpVector();
 
 		FHitResult RaycastHitInfo;
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
 
-		const bool bRaycastHitResult = GetWorld()->LineTraceSingleByChannel(RaycastHitInfo, CharacterLocation, UpRayDirection, ECC_Visibility, QueryParams);
+		const bool bRaycastHitResult = GetWorld()->LineTraceSingleByChannel(RaycastHitInfo, CharacterLocation, CharacterUpVector, ECC_Visibility, QueryParams);
 		if (bRaycastHitResult)
 		{
 			return;
