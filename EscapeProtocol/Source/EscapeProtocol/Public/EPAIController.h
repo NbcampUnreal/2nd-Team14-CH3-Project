@@ -2,11 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Perception/AIPerceptionTypes.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "EPAIController.generated.h"
-
 
 UCLASS()
 class ESCAPEPROTOCOL_API AEPAIController : public AAIController
@@ -24,6 +24,7 @@ public:
 	void SetChaseSpeed(float CSpeed);
 	void SetPatrolSpeed(float PSpeed);
 	void SetAttackRange(float AttackRange);
+
 
 private:
 	UPROPERTY(VisibleAnywhere, Category="AI")

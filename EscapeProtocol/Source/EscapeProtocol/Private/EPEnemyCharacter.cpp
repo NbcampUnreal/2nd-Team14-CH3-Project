@@ -143,7 +143,7 @@ void AEPEnemyCharacter::Attack()
 				{
 					float DamageAmount = GetAttackerPower();
 					UGameplayStatics::ApplyDamage(PlayerCharacter, DamageAmount, GetController(), this, UDamageType::StaticClass());
-					UE_LOG(LogTemp, Warning, TEXT("Player takeDamage : %f"), DamageAmount);
+					
 				}
 
 
