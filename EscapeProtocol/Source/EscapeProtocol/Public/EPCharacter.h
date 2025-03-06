@@ -97,6 +97,8 @@ public:
 	UAnimMontage* RifleReloadMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
 	UAnimMontage* ShotgunReloadMontage;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
+    UAnimMontage* DeathMontage;
 
 	
 
@@ -123,11 +125,17 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+    bool bIsDead;
+
 public:
     virtual void Tick(float DeltaTime) override;
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+    virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
     void AddHealth(float value);
 
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Information|State")
+    bool IsDead() const;
 };

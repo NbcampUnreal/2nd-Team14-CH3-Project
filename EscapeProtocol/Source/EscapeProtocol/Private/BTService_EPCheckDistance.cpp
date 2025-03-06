@@ -25,10 +25,13 @@ void UBTService_EPCheckDistance::TickNode(UBehaviorTreeComponent& OwnerComp, uin
             float Distance = FVector::Dist(Player->GetActorLocation(), SelfActor->GetActorLocation());
             float AttackRange = BlackboardComp->GetValueAsFloat(TEXT("AttackRange"));
 
-            // 공격 범위(예: 200.0f) 내인지 확인
             bool bInRange = (Distance <= AttackRange);
 
             BlackboardComp->SetValueAsBool("IsInAttackRange", bInRange);
+            UE_LOG(LogTemp, Warning, TEXT("Distance: %f, AttackRange: %f, bInRange: %s"),
+                Distance,
+                AttackRange,
+                bInRange ? TEXT("true") : TEXT("false"));
         }
     }
 }

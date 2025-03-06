@@ -9,7 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "InputActionValue.h"
 #include "EPWeaponComponent.h"
-
+#include "Components/CapsuleComponent.h"
 #include "EPPlayerController.h"
 #include "DrawDebugHelpers.h"
 
@@ -81,6 +81,7 @@ AEPCharacter::AEPCharacter()
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("hand_r_ability_socket"));
 
 	Health = 100.0f;
+	bIsDead = false;
 	InventoryComponent = CreateDefaultSubobject<UEPInventoryComponent>(TEXT("InventoryComponent"));
 	WeaponComponent = CreateDefaultSubobject<UEPWeaponComponent>(TEXT("WeaponComponent"));
 	this->Tags.Add(FName("Player"));
@@ -622,6 +623,58 @@ void AEPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 }
 
+float AEPCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (bIsDead)
+	{
+		return 0.f;
+	}
+
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UE_LOG(LogTemp, Warning, TEXT("Player takeDamage : %f"), DamageAmount);
+	Health -= DamageAmount;
+	UE_LOG(LogTemp, Warning, TEXT("Player took damage: %f, Remaining Health: %f"), DamageAmount, Health);
+
+	// 체력이 0 이하라면 사망 처리
+	if (Health <= 0.f)
+	{
+		Health = 0.0f;
+		bIsDead = true;
+
+		if (DeathMontage)
+		{
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				float MontageDuration = AnimInstance->Montage_Play(DeathMontage, 1.0f);
+				UE_LOG(LogTemp, Warning, TEXT("Playing DeathMontage, Duration: %f"), MontageDuration);
+			}
+		}
+		// 캡슐 컴포넌트의 충돌 비활성화 (Ragdoll 동작에 방해되지 않도록)
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		SetCanBeDamaged(false);
+
+		// AnimInstance를 중지시키고 RagDoll 활성화
+		GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+		GetMesh()->SetSimulatePhysics(true);
+		// 애니메이션 모드를 물리 시뮬레이션에 맞게 변경
+		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+
+		AEPPlayerController* PlayerController = Cast<AEPPlayerController>(GetController());
+		if (PlayerController)
+		{
+			PlayerController->UnPossess();
+		}
+
+		SetActorTickEnabled(false);
+
+	}
+
+	return DamageAmount;
+}
+
 void AEPCharacter::AddHealth(float value)
 {
 	Health += value;
@@ -630,6 +683,11 @@ void AEPCharacter::AddHealth(float value)
 		Health = 100.0f;
 	}
 
+}
+
+bool AEPCharacter::IsDead() const
+{
+	return bIsDead;
 }
 
 

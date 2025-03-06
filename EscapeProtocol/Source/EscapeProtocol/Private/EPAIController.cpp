@@ -87,3 +87,13 @@ void AEPAIController::SetAttackRange(float AttackRange)
 
     }
 }
+
+void AEPAIController::SetIsAttacking(bool IsAttacking)
+{
+    if (BlackboardComp)
+    {
+        BlackboardComp->SetValueAsBool(TEXT("IsAttacking"), IsAttacking);
+
+    }
+}
+

@@ -24,6 +24,7 @@ public:
 	void SetChaseSpeed(float CSpeed);
 	void SetPatrolSpeed(float PSpeed);
 	void SetAttackRange(float AttackRange);
+	void SetIsAttacking(bool IsAttacking);
 
 
 private:
@@ -38,4 +39,5 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI", meta = (AllowPrivateAccess = "true"))
 	UBehaviorTree* BehaviorTreeAsset;
+
 };

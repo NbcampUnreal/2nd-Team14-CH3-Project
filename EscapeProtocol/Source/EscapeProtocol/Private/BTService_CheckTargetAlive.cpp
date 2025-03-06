@@ -5,7 +5,7 @@
 UBTService_CheckTargetAlive::UBTService_CheckTargetAlive()
 {
     bNotifyTick = true;
-    Interval = 0.5f; // 0.5초마다 업데이트
+    Interval = 0.1f;
     RandomDeviation = 0.1f;
     NodeName = TEXT("Check Target Alive");
 }

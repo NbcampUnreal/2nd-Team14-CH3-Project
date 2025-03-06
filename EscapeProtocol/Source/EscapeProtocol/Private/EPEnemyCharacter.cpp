@@ -138,9 +138,15 @@ void AEPEnemyCharacter::Attack()
 			if (MontageDuration > 0.f)
 			{
 				bIsAttacking = true;
+				
 				AEPCharacter* PlayerCharacter = Cast<AEPCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+				AEPAIController* AIController = Cast<AEPAIController>(GetController());
 				if (PlayerCharacter)
 				{
+					if (AIController)
+					{
+						AIController->SetIsAttacking(bIsAttacking);
+					}
 					float DamageAmount = GetAttackerPower();
 					UGameplayStatics::ApplyDamage(PlayerCharacter, DamageAmount, GetController(), this, UDamageType::StaticClass());
 					
@@ -197,6 +203,7 @@ void AEPEnemyCharacter::EndCombat()
 	if (AIController)
 	{
 		AIController->SetCombatState(bIsInCombat);  // 감지 해제
+		
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Combat ended, returning to Patrol"));
@@ -211,6 +218,11 @@ void AEPEnemyCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 	{
 		bIsAttacking = false;
 		OnAttackEnded.Broadcast();
+		AEPAIController* AIController = Cast<AEPAIController>(GetController());
+		if (AIController)
+		{
+			AIController->SetIsAttacking(bIsAttacking);
+		}
 	}
 }
 
