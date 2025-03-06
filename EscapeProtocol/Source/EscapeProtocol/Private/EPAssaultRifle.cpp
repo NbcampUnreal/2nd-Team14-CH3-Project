@@ -9,7 +9,7 @@
 AEPAssaultRifle::AEPAssaultRifle()
 {
 	
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshAsset(TEXT("/Game/Weapons/AR-15_style_rifle/SKM_ar_15_style_rifle.SKM_ar_15_style_rifle"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshAsset(TEXT("/Game/Weapons/Rifle/Mesh/SK_Rifle.SK_Rifle"));
 
 	if (SkeletalMeshAsset.Succeeded())
 	{
@@ -25,7 +25,6 @@ AEPAssaultRifle::AEPAssaultRifle()
 	FireDelay = 1.0f;
 	WeaponType = EWeaponType::Rifle;
 	BulletBlueprint = nullptr;
-	//MuzzleLocation = SkeletalMeshComp->GetSocketLocation(TEXT("MuzzleSocket"));
 }
 
 void AEPAssaultRifle::FireGun()
@@ -36,7 +35,7 @@ void AEPAssaultRifle::FireGun()
 		
 		Super::FireGun();
 		FireReady = Super::FireReady;
-		MuzzleTransform = SkeletalMeshComp->GetSocketTransform(FName("MuzzleSocket"), RTS_World);
+		MuzzleTransform = SkeletalMeshComp->GetSocketTransform(FName("Muzzle"), RTS_World);
 		//ÅºÈ¯ »ý¼º
 		//MuzzleEffect->rota
 		GetWorld()->SpawnActor<AActor>(BulletBlueprint, MuzzleTransform);

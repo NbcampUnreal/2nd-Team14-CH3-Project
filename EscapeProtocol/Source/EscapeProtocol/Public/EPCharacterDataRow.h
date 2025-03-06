@@ -8,10 +8,10 @@
 /**
  * 
  */
-USTRUCT(BlueprintType)
+USTRUCT(Atomic, BlueprintType)
 struct FEPCharacterDataRow :public FTableRowBase
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
