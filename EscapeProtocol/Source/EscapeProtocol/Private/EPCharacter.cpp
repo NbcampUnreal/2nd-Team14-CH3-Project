@@ -149,7 +149,7 @@ void AEPCharacter::Look(const FInputActionValue& Value)
 void AEPCharacter::StartJump(const FInputActionValue& Value)
 {
 	const bool JumpInput = Value.Get<bool>();
-	if (JumpInput)
+	if (JumpInput && !TPSMovementComp->IsFalling())
 	{
 		bIsJumping = true;
 		
