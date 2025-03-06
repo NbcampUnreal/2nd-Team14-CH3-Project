@@ -36,22 +36,26 @@ void AEPBullet::BeginPlay()
 
 	FHitResult Hit;
 	FVector StartTrace = GetActorLocation();
-	
-	APlayerCameraManager* CameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-	FVector Loc = CameraManager->GetCameraLocation();
-	FVector Rot = CameraManager->GetActorForwardVector();
-
-	FVector EndTrace = (Rot * Range) + Loc;
-	DrawDebugLine(GetWorld(), StartTrace, EndTrace,FColor::Red,true);
+	FVector EndTrace = (GetActorRotation().Vector() * Range) + StartTrace;
+	FVector ShotDirection = (EndTrace - StartTrace).GetSafeNormal();
+	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, true);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleEffect, StartTrace);
 	if (GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_GameTraceChannel1))
 	{
-
+		AActor* HitActor = Hit.GetActor();
 		if (Hit.GetActor()->ActorHasTag(FName("Enemy")))
 		{
-
+			float DamageAmount = 10.0f;
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint);
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Hit.GetActor()->GetName());
+			UGameplayStatics::ApplyPointDamage(
+				HitActor,
+				DamageAmount,
+				ShotDirection,
+				Hit,
+				GetInstigatorController(),
+				this,
+				UDamageType::StaticClass()
+			);
 
 		}
 
