@@ -112,6 +112,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
     USkeletalMeshComponent* WeaponMeshComponent;
 
+	
     USkeletalMesh* RifleMesh;
 
     USkeletalMesh* ShotGunMesh;
