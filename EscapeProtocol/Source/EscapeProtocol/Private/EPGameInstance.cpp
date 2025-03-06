@@ -20,7 +20,7 @@ UEPGameInstance::UEPGameInstance()
         CharacterItemDataTable = CharacterItemDataObject.Object;
     }
 
-	static ConstructorHelpers::FObjectFinder<UDataTable> WeaponDataTableObject(TEXT("/Game/Weapons/WeaponData.WeaponData"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> WeaponDataTableObject(TEXT("/Game/Weapons/Data/WeaponData.WeaponData"));
 	if (WeaponDataTableObject.Succeeded())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("WeaponDataTableObject Find Succeed!"));

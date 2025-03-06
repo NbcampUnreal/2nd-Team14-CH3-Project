@@ -12,7 +12,7 @@ USTRUCT(Atomic,BlueprintType)
 struct FEPWeaponDataRow : public FTableRowBase
 {
 
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName WeaponType;

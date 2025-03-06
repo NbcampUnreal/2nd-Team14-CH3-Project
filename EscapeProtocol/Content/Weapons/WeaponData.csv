@@ -1,4 +1,0 @@
-,WeaponType,Damage,Ammo,MaxAmmo,FireDelay
-HandGun,HandGun,15,15,15,0.2
-Rifle,Rifle,10,30,30,0.085
-ShotGun,ShotGun,8,8,8,0.5

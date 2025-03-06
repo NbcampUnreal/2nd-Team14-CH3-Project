@@ -51,16 +51,25 @@ void UEPWeaponComponent::BeginPlay()
 	if (Instance)
 	{
 		UEPGameInstance* GameInstance = Cast<UEPGameInstance>(Instance);
+		if (GameInstance->WeaponDataTable)
+		{
+			HandGunDataRow = GameInstance->WeaponDataTable->FindRow<FEPWeaponDataRow>(FName("HandGun"), FString("HandGunDataContext"));
+			RifleDataRow = GameInstance->WeaponDataTable->FindRow<FEPWeaponDataRow>(FName("Rifle"), FString("RifleDataContext"));
+			ShotGunDataRow = GameInstance->WeaponDataTable->FindRow<FEPWeaponDataRow>(FName("ShotGun"), FString("ShotGunDataContext"));
 
-		HandGunDataRow = GameInstance->WeaponDataTable->FindRow<FEPWeaponDataRow>(FName("HandGun"), FString("HandGunDataContext"));
-		RifleDataRow = GameInstance->WeaponDataTable->FindRow<FEPWeaponDataRow>(FName("Rifle"), FString("RifleDataContext"));
-		ShotGunDataRow = GameInstance->WeaponDataTable->FindRow<FEPWeaponDataRow>(FName("ShotGun"), FString("ShotGunDataContext"));
+			HandGunData = SetData(HandGunDataRow);
+			RifleData = SetData(RifleDataRow);
+			ShotGunData = SetData(ShotGunDataRow);
+
+			UE_LOG(LogTemp, Warning, TEXT("DataLoad Succeed"));
 
 
-		HandGunData = SetData(HandGunDataRow);
-		RifleData = SetData(RifleDataRow);
-		ShotGunData = SetData(ShotGunDataRow);
+		}
 	}
+
+
+
+
 
 	// ...
 	
