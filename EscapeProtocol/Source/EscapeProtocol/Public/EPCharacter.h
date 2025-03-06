@@ -58,6 +58,9 @@ public:
 	void AimingDownSight(const FInputActionValue& Value);
 	void ReleaseAimingDownSight(const FInputActionValue& Value);
 
+	// 웅크린 자세에서 점프가 가능하게 하기 위해 오버라이드
+	virtual bool CanJumpInternal_Implementation() const override;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float NormalGroundSpeed = 600.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -94,8 +97,7 @@ public:
 	UAnimMontage* RifleReloadMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
 	UAnimMontage* ShotgunReloadMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
-    UAnimMontage* DeathMontage;
+
 	
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Inventory")
@@ -116,13 +118,10 @@ public:
 
     USkeletalMesh* HandGunMesh;
 
-    
+
 
 protected:
     virtual void BeginPlay() override;
-
-    bool bIsDead;
-    
 
 public:
     virtual void Tick(float DeltaTime) override;
@@ -131,7 +130,4 @@ public:
 
     void AddHealth(float value);
 
-    virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Information|State")
-    bool IsDead() const;
 };

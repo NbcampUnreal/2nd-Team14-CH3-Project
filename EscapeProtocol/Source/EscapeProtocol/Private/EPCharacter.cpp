@@ -1,133 +1,635 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "EPInventoryComponent.h"
-#include "EPCharacter.generated.h"
+#include "EPCharacter.h"
 
-class USpringArmComponent;
-class UCameraComponent;
-class UEPWeaponComponent;
-struct FInputActionValue;
+#include "EnhancedInputComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "InputActionValue.h"
+#include "EPWeaponComponent.h"
 
-UENUM(BlueprintType)
-enum class ECharacterState : uint8
+#include "EPPlayerController.h"
+#include "DrawDebugHelpers.h"
+
+AEPCharacter::AEPCharacter()
 {
-    Unarmed		UMETA(DisplayName = "Unarmed"),
-    Pistol		UMETA(DisplayName = "Pistol"),
-    Rifle		UMETA(DisplayName = "Rifle"),
-    Shotgun		UMETA(DisplayName = "Shotgun")
-};
+	PrimaryActorTick.bCanEverTick = false;
+	
+	// 카메라 관련
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
+	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->TargetArmLength = 350;
+	SpringArmComp->SocketOffset = FVector(0.f, 40.f, 80.f);
 
-UCLASS()
-class ESCAPEPROTOCOL_API AEPCharacter : public ACharacter
+
+	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
+	CameraComp->SetupAttachment(SpringArmComp);
+
+	// 무브먼트 관련
+	TPSMovementComp->MaxWalkSpeed = 400.0f;
+
+	// 캐릭터 회전 관련
+	SpringArmComp->bUsePawnControlRotation = true;
+	CameraComp->bUsePawnControlRotation = false;
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
+
+	TPSMovementComp->bOrientRotationToMovement = false;
+	TPSMovementComp->bUseControllerDesiredRotation = false;
+	TPSMovementComp->bAllowPhysicsRotationDuringAnimRootMotion = false;
+
+	// 앉기 Crouch 관련
+	TPSMovementComp->GetNavAgentPropertiesRef().bCanCrouch = true;
+	TPSMovementComp->bCanWalkOffLedgesWhenCrouching = true;
+	TPSMovementComp->SetCrouchedHalfHeight(60.f);
+
+	// 캐릭터 감속 관련 설정
+	TPSMovementComp->MaxAcceleration = 2400.0f;
+	TPSMovementComp->BrakingFrictionFactor = 1.0f;
+	TPSMovementComp->BrakingFriction = 6.0f;
+	TPSMovementComp->GroundFriction = 8.0f;
+	TPSMovementComp->BrakingDecelerationWalking = 1400.0f;
+
+	WeaponMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMeshComponent"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> RifleMeshs(TEXT("/Game/Weapons/Rifle/Mesh/SK_Rifle.SK_Rifle"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HandGunMeshs(TEXT("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ShotGunMeshs(TEXT("/Game/Weapons/Shotgun/Mesh/SKM_Shotgun.SKM_Shotgun"));
+	
+	if (RifleMeshs.Succeeded())
+	{
+		RifleMesh = RifleMeshs.Object;
+		UE_LOG(LogTemp, Warning, TEXT("RifleMesh Succeed!!"));
+
+	}
+	if (HandGunMeshs.Succeeded())
+	{
+		HandGunMesh = HandGunMeshs.Object;
+		UE_LOG(LogTemp, Warning, TEXT("HandGunMesh Succeed!!"));
+
+	}
+	if (ShotGunMeshs.Succeeded())
+	{
+		ShotGunMesh = ShotGunMeshs.Object;
+		UE_LOG(LogTemp, Warning, TEXT("ShotGunMesh Succeed!!"));
+
+	}
+
+	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("hand_r_ability_socket"));
+
+	Health = 100.0f;
+	InventoryComponent = CreateDefaultSubobject<UEPInventoryComponent>(TEXT("InventoryComponent"));
+	WeaponComponent = CreateDefaultSubobject<UEPWeaponComponent>(TEXT("WeaponComponent"));
+	this->Tags.Add(FName("Player"));
+
+}
+
+
+void AEPCharacter::Move(const FInputActionValue& Value)
 {
-    GENERATED_BODY()
+	const FVector2D MoveInput = Value.Get<FVector2D>();
 
-public:
-    // Sets default values for this character's properties
-    AEPCharacter();
-    // 카메라 설정 관련
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-    USpringArmComponent* SpringArmComp;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-    UCameraComponent* CameraComp;
+	// 미입력 예외처리
+	if (MoveInput != FVector2D::ZeroVector)
+	{
+		// 캐릭터의 방향 계산
+		const FVector DesireMoveDirection = GetActorForwardVector() * MoveInput.X + GetActorRightVector() * MoveInput.Y;
 
-    // 캐릭터 무브먼트 관련
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-    UCharacterMovementComponent* TPSMovementComp = GetCharacterMovement();
+		// 대각선 이동에 크기에 대한 보정
+		const FVector CharacterXYMoveDirection = DesireMoveDirection.GetSafeNormal();
 
 
-    // 캐릭터 Action 관련 
-    void Move(const FInputActionValue& Value);
-    void Look(const FInputActionValue& Value);
-    void StartJump(const FInputActionValue& Value);
-    void StopJump(const FInputActionValue& Value);
-    void StartCrouch(const FInputActionValue& Value);
-    void StopCrouch(const FInputActionValue& Value);
-    void StartSprint(const FInputActionValue& Value);
-    void StopSprint(const FInputActionValue& Value);
-    void Fire(const FInputActionValue& Value);
-    void Reload(const FInputActionValue& Value);
-    void EquipRifle(const FInputActionValue& Value);
-    void EquipShotgun(const FInputActionValue& Value);
-    void EquipPistol(const FInputActionValue& Value);
-    void UnEquip(const FInputActionValue& Value);
-    void AimingDownSight(const FInputActionValue& Value);
-    void ReleaseAimingDownSight(const FInputActionValue& Value);
-
-    // 웅크린 자세에서 점프가 가능하게 하기 위해 오버라이드
-    virtual bool CanJumpInternal_Implementation() const override;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-    float NormalGroundSpeed = 600.0f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-    float SprintGroundSpeed = 1000.0f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Crouch")
-    bool bIsCrouching = false;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Jump")
-    bool bIsJumping = false;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Sprint")
-    bool bIsSprinting = false;
-
-    UFUNCTION(BlueprintImplementableEvent, Category = "ActionState|Ads")
-    void ZoomIn();
-    UFUNCTION(BlueprintImplementableEvent, Category = "ActionState|Ads")
-    void ZoomOut();
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ActionState|Ads")
-    bool bIsZooming = false;
-
-    // 애니메이션 재생 관련
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterState")
-    ECharacterState CharacterState = ECharacterState::Unarmed;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
-    UAnimMontage* PistolFireMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
-    UAnimMontage* RifleFireMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
-    UAnimMontage* ShotgunFireMontage;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
-    UAnimMontage* PistolReloadMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
-    UAnimMontage* RifleReloadMontage;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim|Montage")
-    UAnimMontage* ShotgunReloadMontage;
+		if (TPSMovementComp->IsFalling())
+		{
+			AddMovementInput(CharacterXYMoveDirection, 1);
+			return;
+		}
 
 
+		// Raycast 시작점
+		// 공중에서 스폰이 시작 될 때를 위한 초기 설정
+		FVector FloorNormal = FVector(0.f, 0.f, 1.f);
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Inventory")
-    UEPInventoryComponent* InventoryComponent;
+		// Raycast 의 시작점과 끝점을 계산하기 위해 필요
+		const FVector CharacterLocation = GetActorLocation();
+		const FVector FootRayDirection = CharacterLocation - FVector(0.f, 0.f, 500.f);
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|HP")
-    float Health;
+		FHitResult RaycastHitInfo;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
-    UEPWeaponComponent* WeaponComponent;
+		const bool bRaycastHitResult = GetWorld()->LineTraceSingleByChannel(RaycastHitInfo, CharacterLocation, FootRayDirection, ECC_Visibility, QueryParams);
+		if (bRaycastHitResult)
+		{
+			FloorNormal = RaycastHitInfo.Normal;
+		}
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
-    USkeletalMeshComponent* WeaponMeshComponent;
+		const FVector AdjustedMoveDirection = FVector::VectorPlaneProject(CharacterXYMoveDirection, FloorNormal);
+		const FVector CharacterMoveDirection = AdjustedMoveDirection.GetSafeNormal();
 
-    USkeletalMesh* RifleMesh;
+		AddMovementInput(CharacterMoveDirection, 1);
+	}
+}
 
-    USkeletalMesh* ShotGunMesh;
+void AEPCharacter::Look(const FInputActionValue& Value)
+{
+	const FVector2D LookInput = Value.Get<FVector2D>();
+	// 미입력 예외처리
+	if (LookInput != FVector2D::ZeroVector)
+	{
+		AddControllerYawInput(LookInput.X);
+		AddControllerPitchInput(LookInput.Y);
+	}
+}
 
-    USkeletalMesh* HandGunMesh;
+void AEPCharacter::StartJump(const FInputActionValue& Value)
+{
+	const bool JumpInput = Value.Get<bool>();
+	if (JumpInput)
+	{
+		bIsJumping = true;
+		
+		// Jump() 는 Crouch() 도중에 사용할 수 없어서 UnCrouch() 부터 실행
+		if (bIsCrouching)
+		{
+			UnCrouch();
+		}
+
+		Jump();
+
+	}
+}
+
+// 웅크린 상태에서 점프 가능하게 리턴 값에서 bIsCrouched 체크를 제외 
+bool AEPCharacter::CanJumpInternal_Implementation() const
+{
+	Super::CanJumpInternal_Implementation();
+	
+	return TPSMovementComp->CanAttemptJump();
+}
+
+void AEPCharacter::StopJump(const FInputActionValue& Value)
+{
+	const bool JumpInput = Value.Get<bool>();
+	// 미입력 예외처리
+	if (!JumpInput)
+	{
+		StopJumping();
+		bIsJumping = false;
+	}
+}
+
+void AEPCharacter::StartCrouch(const FInputActionValue& Value)
+{
+	const bool CrouchInput = Value.Get<bool>();
+	// 미입력 예외처리
+	if (CrouchInput && !TPSMovementComp->IsFalling() && !bIsJumping)
+	{
+		Crouch();
+		bIsCrouching = true;
+
+	}
+}
+
+void AEPCharacter::StopCrouch(const FInputActionValue& Value)
+{
+	const bool CrouchInput = Value.Get<bool>();
+	// 미입력 예외처리
+	if (!CrouchInput)
+	{
+		const FVector CharacterLocation = GetActorLocation();
+		const FVector CharacterUpVector = CharacterLocation + 150*GetActorUpVector();
+
+		FHitResult RaycastHitInfo;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+
+		const bool bRaycastHitResult = GetWorld()->LineTraceSingleByChannel(RaycastHitInfo, CharacterLocation, CharacterUpVector, ECC_Visibility, QueryParams);
+		if (bRaycastHitResult)
+		{
+			return;
+		}
+		
+		UnCrouch();
+		bIsCrouching = false;
+
+	}
+
+}
+
+void AEPCharacter::StartSprint(const FInputActionValue& Value)
+{
+	const bool SprintInput = Value.Get<bool>();
+	// 미입력 예외처리
+	if (SprintInput)
+	{
+		TPSMovementComp->MaxWalkSpeed = SprintGroundSpeed;
+		bIsSprinting = true;
+	}
+}
+
+void AEPCharacter::StopSprint(const FInputActionValue& Value)
+{
+	const bool SprintInput = Value.Get<bool>();
+	// 미입력 예외처리
+	if (!SprintInput)
+	{
+		TPSMovementComp->MaxWalkSpeed = NormalGroundSpeed;
+		bIsSprinting = false;
+	}
+}
+
+void AEPCharacter::EquipRifle(const FInputActionValue& Value)
+{
+	const bool EquipInput = Value.Get<bool>();
+	if (EquipInput)
+	{
+		CharacterState = ECharacterState::Rifle;
+		if (RifleMesh)
+		{
+			WeaponMeshComponent->SetSkeletalMesh(RifleMesh);
+		}
+		
+		UE_LOG(LogTemp, Display, TEXT("EquipRifle"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("Fail to EquipRifle"));
+	}
+}
+
+void AEPCharacter::EquipShotgun(const FInputActionValue& Value)
+{
+	const bool EquipInput = Value.Get<bool>();
+	if (EquipInput)
+	{
+		if (ShotGunMesh)
+		{
+			WeaponMeshComponent->SetSkeletalMesh(ShotGunMesh);
+		}
+		CharacterState = ECharacterState::Shotgun;
+	}
+}
+
+void AEPCharacter::EquipPistol(const FInputActionValue& Value)
+{
+	const bool EquipInput = Value.Get<bool>();
+	if (EquipInput)
+	{
+		if (HandGunMesh)
+		{
+			WeaponMeshComponent->SetSkeletalMesh(HandGunMesh);
+		}
+		CharacterState = ECharacterState::Pistol;
+	}
+}
+
+void AEPCharacter::UnEquip(const FInputActionValue& Value)
+{
+	const bool UnEquipInput = Value.Get<bool>();
+	if (UnEquipInput)
+	{
+		CharacterState = ECharacterState::Unarmed;
+	}
+}
+
+void AEPCharacter::AimingDownSight(const FInputActionValue& Value)
+{
+	const bool AdsInput = Value.Get<bool>();
+	if (AdsInput)
+	{
+		// 블루 프린트에서 bIsAds 값에 따라 SpringArm 의 Length 를 변환 시킬 예정
+		bIsZooming = true;
+		ZoomIn();
+	}
+}
+
+void AEPCharacter::ReleaseAimingDownSight(const FInputActionValue& Value)
+{
+	const bool AdsInput = Value.Get<bool>();
+	if (!AdsInput)
+	{
+		bIsZooming = false;
+		ZoomOut();
+	}
+}
+
+
+void AEPCharacter::Fire(const FInputActionValue& Value)
+{
+	// // 연사 사격 시
+	// const FName FireSectionName = FName("Fire");
+
+	UAnimMontage* FireMontage = nullptr;
+
+	if (CharacterState == ECharacterState::Unarmed)
+	{
+		return;
+	}
+	
+	switch (CharacterState)
+	{
+	case ECharacterState::Pistol :
+		{
+			if (PistolFireMontage)
+			{
+				FireMontage = PistolFireMontage;
+			}
+			break;	
+		}
+	case ECharacterState::Rifle :
+		{
+			if (RifleFireMontage)
+			{
+				FireMontage = RifleFireMontage;
+				
+			}
+			
+			break;
+		}
+		
+	case ECharacterState::Shotgun :
+		{
+			if (ShotgunFireMontage)
+			{
+				FireMontage = ShotgunFireMontage;
+			}
+			break;
+		}
+	default :
+		{
+			CharacterState = ECharacterState::Unarmed;
+			// 무장중이 아니라는 것을 알 수 있는 로직 (ex : 사운드, UI 출력 등)
+			return;
+		}
+	}
+	if (WeaponComponent)
+	{
+		WeaponComponent->GunFire();
+		//UE_LOG(LogTemp, Warning, TEXT("Fire!!"));
+
+	}
+
+	if (FireMontage)
+	{
+		FName FireSection = FName(TEXT("Fire"));
+		PlayAnimMontage(FireMontage, 1, FireSection);
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load Fire Montage."))
+	}
+	
+}
+
+void AEPCharacter::Reload(const FInputActionValue& Value)
+{
+	UAnimMontage* ReloadMontage = nullptr;
+	if (CharacterState == ECharacterState::Unarmed)
+	{
+		return;
+	}
+	
+	switch (CharacterState)
+	{
+	case ECharacterState::Pistol :
+		{
+			if (PistolReloadMontage)
+			{
+				ReloadMontage = PistolReloadMontage;
+			}
+			break;	
+		}
+	case ECharacterState::Rifle :
+		{
+			if (RifleReloadMontage)
+			{
+				ReloadMontage = RifleReloadMontage;
+				UE_LOG(LogTemp, Display, TEXT("Play RifleReloadMontage"));
+				
+			}
+			break;
+		}
+		
+	case ECharacterState::Shotgun :
+		{
+			if (ShotgunReloadMontage)
+			{
+				ReloadMontage = ShotgunReloadMontage;
+				UE_LOG(LogTemp, Display, TEXT("Play ShotgunReloadMontage"));
+			}
+			break;
+		}
+	default :
+		{
+			CharacterState = ECharacterState::Unarmed;
+			// 무장중이 아니라는 것을 알 수 있는 로직 (ex : 사운드, UI 출력 등)
+			return;
+		}
+	}
+
+	if (WeaponComponent)
+	{
+		WeaponComponent->Reload();
+		//UE_LOG(LogTemp, Warning, TEXT("Fire!!"));
+
+	}
 
 
 
-protected:
-    virtual void BeginPlay() override;
+	if (ReloadMontage)
+	{
+		FName ReloadSection = FName(TEXT("Reload"));
+		PlayAnimMontage(ReloadMontage, 1, ReloadSection);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to load Reload Montage."))
+	}
+}
 
-public:
-    virtual void Tick(float DeltaTime) override;
 
-    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+void AEPCharacter::BeginPlay()
+{
+	Super::BeginPlay();
 
-    void AddHealth(float value);
+	
 
-};
+}
+
+
+
+void AEPCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+void AEPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// BindAction 을 위한 EnhancedInputComponent 가져오기
+	auto* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (!EnhancedInputComponent)
+	{
+		return;
+	}
+
+	// BindAction 을 위한 PlayerController 가져오기
+	const auto* PlayerController = Cast<AEPPlayerController>(GetController());
+	if (!PlayerController)
+	{
+		return;
+	}             
+
+	// Controller 에 각각의 IA 이 등록되어 있는지 확인
+
+	if (PlayerController->MoveAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->MoveAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::Move);
+	}
+
+	if (PlayerController->LookAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->LookAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::Look);
+	}
+
+	if (PlayerController->JumpAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->JumpAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::StartJump);
+
+		EnhancedInputComponent->BindAction(
+			PlayerController->JumpAction,
+			ETriggerEvent::Completed,
+			this,
+			&AEPCharacter::StopJump);
+	}
+
+	if (PlayerController->CrouchAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->CrouchAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::StartCrouch);
+
+		EnhancedInputComponent->BindAction(
+			PlayerController->CrouchAction,
+			ETriggerEvent::Completed,
+			this,
+			&AEPCharacter::StopCrouch);
+	}
+
+	if (PlayerController->SprintAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->SprintAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::StartSprint);
+
+		EnhancedInputComponent->BindAction(
+			PlayerController->SprintAction,
+			ETriggerEvent::Completed,
+			this,
+			&AEPCharacter::StopSprint);
+	}
+
+	if (PlayerController->FireAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->FireAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::Fire);
+	}
+
+	if (PlayerController->ReloadAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->ReloadAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::Reload);
+	}
+
+	if (PlayerController->EquipRifleAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->EquipRifleAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::EquipRifle);
+	}
+
+	if (PlayerController->EquipShotgunAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->EquipShotgunAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::EquipShotgun);
+	}
+
+	if (PlayerController->EquipPistolAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->EquipPistolAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::EquipPistol);
+	}
+
+	if (PlayerController->UnEquipAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->UnEquipAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::UnEquip);
+	}
+
+	if (PlayerController->AdsAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PlayerController->AdsAction,
+			ETriggerEvent::Triggered,
+			this,
+			&AEPCharacter::AimingDownSight);
+
+		EnhancedInputComponent->BindAction(
+			PlayerController->AdsAction,
+			ETriggerEvent::Completed,
+			this,
+			&AEPCharacter::ReleaseAimingDownSight);
+	}
+}
+
+void AEPCharacter::AddHealth(float value)
+{
+	Health += value;
+	if (Health > 100.0f)
+	{
+		Health = 100.0f;
+	}
+
+}
+
+
