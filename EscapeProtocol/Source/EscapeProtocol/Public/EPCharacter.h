@@ -128,6 +128,14 @@ protected:
 
     bool bIsDead;
 
+    // DeathMontage 종료 후 후속 처리를 위한 함수
+    UFUNCTION()
+    void HandleDeathAfterMontage();
+
+private:
+    // 타이머 핸들
+    FTimerHandle DeathTimerHandle;
+
 public:
     virtual void Tick(float DeltaTime) override;
 

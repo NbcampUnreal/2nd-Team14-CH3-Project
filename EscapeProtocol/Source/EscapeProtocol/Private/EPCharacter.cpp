@@ -463,7 +463,6 @@ void AEPCharacter::BeginPlay()
 }
 
 
-
 void AEPCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -629,61 +628,74 @@ float AEPCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	{
 		return 0.f;
 	}
+
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-
+	// HitMontage 재생 (있을 경우)
 	if (HitMontage)
 	{
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance)
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 		{
-			float MontageDuration = AnimInstance->Montage_Play(HitMontage, 1.0f, EMontagePlayReturnType::Duration, 0.0f, true);
+			float MontageDuration = AnimInstance->Montage_Play(HitMontage, 1.f, EMontagePlayReturnType::Duration, 0.f, true);
 			UE_LOG(LogTemp, Warning, TEXT("Playing HitMontage, Duration: %f"), MontageDuration);
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Player takeDamage : %f"), DamageAmount);
+
+	UE_LOG(LogTemp, Warning, TEXT("Player takeDamage: %f"), DamageAmount);
 	Health -= DamageAmount;
-	UE_LOG(LogTemp, Warning, TEXT("Player took damage: %f, Remaining Health: %f"), DamageAmount, Health);
+	UE_LOG(LogTemp, Warning, TEXT("Remaining Health: %f"), Health);
 
 	// 체력이 0 이하라면 사망 처리
 	if (Health <= 0.f)
 	{
-		Health = 0.0f;
+		Health = 0.f;
 		bIsDead = true;
 
+		// DeathMontage 재생 및 타이머 설정
 		if (DeathMontage)
 		{
-			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-			if (AnimInstance)
+			if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 			{
-				float MontageDuration = AnimInstance->Montage_Play(DeathMontage, 1.0f);
+				float MontageDuration = AnimInstance->Montage_Play(DeathMontage, 1.f);
 				UE_LOG(LogTemp, Warning, TEXT("Playing DeathMontage, Duration: %f"), MontageDuration);
+
+				float DelayTime = 2.0f; // 이 값을 조정해서 노티파이가 확실히 발생하는지 확인
+				// 플레이어 컨트롤러 언포제스션
+				if (AEPPlayerController* PlayerController = Cast<AEPPlayerController>(GetController()))
+				{
+					PlayerController->UnPossess();
+				}
+				GetWorldTimerManager().SetTimer(DeathTimerHandle, this, &AEPCharacter::HandleDeathAfterMontage, DelayTime, false);
 			}
 		}
-		// 캡슐 컴포넌트의 충돌 비활성화 (Ragdoll 동작에 방해되지 않도록)
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		SetCanBeDamaged(false);
-
-		// AnimInstance를 중지시키고 RagDoll 활성화
-		GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
-		GetMesh()->SetSimulatePhysics(true);
-		// 애니메이션 모드를 물리 시뮬레이션에 맞게 변경
-		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-
-		AEPPlayerController* PlayerController = Cast<AEPPlayerController>(GetController());
-		if (PlayerController)
+		else
 		{
-			PlayerController->UnPossess();
+			// DeathMontage가 없는 경우 바로 후속 처리
+			HandleDeathAfterMontage();
 		}
-
-		SetActorTickEnabled(false);
-
 	}
 
 	return DamageAmount;
 }
+
+void AEPCharacter::HandleDeathAfterMontage()
+{
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		// DeathMontage의 총 재생 길이를 가져옵니다.
+		float MontageLength = DeathMontage->GetPlayLength();
+		// 마지막 프레임에 가깝게 위치를 설정하고 재생 속도를 0으로 만듭니다.
+		AnimInstance->Montage_SetPosition(DeathMontage, MontageLength - 0.01f);
+		AnimInstance->Montage_SetPlayRate(DeathMontage, 0.0f);
+	}
+
+	// 스켈레탈 메시의 애니메이션 업데이트를 중지하여 현재 프레임을 고정합니다.
+	GetMesh()->bPauseAnims = true;
+
+	GetCharacterMovement()->DisableMovement();
+	SetActorTickEnabled(false);
+}
+
 
 void AEPCharacter::AddHealth(float value)
 {
