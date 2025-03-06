@@ -36,7 +36,12 @@ void AEPBullet::BeginPlay()
 
 	FHitResult Hit;
 	FVector StartTrace = GetActorLocation();
-	FVector EndTrace = (GetActorRotation().Vector() * Range) + StartTrace;
+
+	APlayerCameraManager* CameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+
+	FVector Loc = CameraManager->GetCameraLocation();
+	FVector Rot = CameraManager->GetActorForwardVector();
+	FVector EndTrace = (Rot * Range) + Loc;
 	FVector ShotDirection = (EndTrace - StartTrace).GetSafeNormal();
 	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, true);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleEffect, StartTrace);
