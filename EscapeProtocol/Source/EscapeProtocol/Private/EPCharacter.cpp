@@ -269,6 +269,11 @@ void AEPCharacter::EquipRifle(const FInputActionValue& Value)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(RifleMesh);
 			WeaponMeshComponent->SetAnimClass(RifleMeshAnim);
+			int32 hasBullet = WeaponComponent->RifleData.Ammo + InventoryComponent->RifleAmmo;
+			if (hasBullet > 0)
+			{
+				isBulletEmpty = false;
+			}
 		}
 		
 		UE_LOG(LogTemp, Display, TEXT("EquipRifle"));
@@ -290,7 +295,14 @@ void AEPCharacter::EquipShotgun(const FInputActionValue& Value)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(ShotGunMesh);
 			WeaponMeshComponent->SetAnimClass(ShotGunMeshAnim);
-
+			if (WeaponComponent && InventoryComponent)
+			{
+				int32 hasBullet = WeaponComponent->ShotGunData.Ammo + InventoryComponent->ShotGunAmmo;
+				if (hasBullet > 0)
+				{
+					isBulletEmpty = false;
+				}
+			}
 		}
 	}
 }
@@ -305,6 +317,14 @@ void AEPCharacter::EquipPistol(const FInputActionValue& Value)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(HandGunMesh);
 			WeaponMeshComponent->SetAnimClass(HandGunMeshAnim);
+			if (WeaponComponent&& InventoryComponent)
+			{
+				int32 hasBullet = WeaponComponent->HandGunData.Ammo + InventoryComponent->HandGunAmmo;
+				if (hasBullet > 0)
+				{
+					isBulletEmpty = false;
+				}
+			}
 		}
 	}
 }
@@ -346,10 +366,15 @@ void AEPCharacter::Fire(const FInputActionValue& Value)
 {
 	// // 연사 사격 시
 	// const FName FireSectionName = FName("Fire");
+	if (isBulletEmpty)
+	{
+		return;
+	}
+
 	isFire = Value.Get<bool>();
 	UAnimMontage* FireMontage = nullptr;
 
-	if (CharacterState == ECharacterState::Unarmed)
+	if (CharacterState == ECharacterState::Unarmed || isBulletEmpty)
 	{
 		return;
 	}
@@ -486,7 +511,7 @@ void AEPCharacter::Reload(const FInputActionValue& Value)
 void AEPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	isBulletEmpty = false;
 	
 
 }

@@ -136,6 +136,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Weapon")
     bool isReload;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Weapon")
+    bool isBulletEmpty;
 protected:
     virtual void BeginPlay() override;
 
