@@ -14,7 +14,7 @@ AEPBullet::AEPBullet()
 	Senen = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	SetRootComponent(Senen);
 
-	Range = 1000.0f;
+	Range = 3000.0f;
 	//MuzzleEffect = nullptr;
 	HitEffect = nullptr;
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> MuzzleEffectObject(TEXT("ParticleSystem'/Game/Weapons/Realistic_Starter_VFX_Pack_Vol2/Particles/Hit/P_Leather.P_Leather'"));
@@ -45,7 +45,6 @@ void AEPBullet::BeginPlay()
 	FVector Rot = CameraManager->GetActorForwardVector();
 	FVector EndTrace = (Rot * Range) + Loc;
 	FVector ShotDirection = (EndTrace - StartTrace).GetSafeNormal();
-	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, true);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleEffect, StartTrace);
 	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	if (Character)
@@ -68,7 +67,7 @@ void AEPBullet::BeginPlay()
 			
 			
 			
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint);
+			
 			UGameplayStatics::ApplyPointDamage(
 				HitActor,
 				DamageAmount,
@@ -80,7 +79,7 @@ void AEPBullet::BeginPlay()
 			);
 
 		}
-
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint);
 	}
 	GetWorldTimerManager().SetTimer(LifeTimerHandle, this, &AEPBullet::DestroyBullet, LifeTime, false);
 
