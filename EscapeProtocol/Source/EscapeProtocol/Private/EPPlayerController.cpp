@@ -104,7 +104,7 @@ void AEPPlayerController::SelectRifle()
     if (HUDWidget)
     {
         HUDWidget->UpdateWeaponIcon(EWeaponType::Rifle);
-        HUDWidget->UpdateAmmo(30, 120);  // 소총 탄약 UI 변경
+        HUDWidget->UpdateAmmo(10, 30);  // 소총 탄약 UI 변경
     }
 }
 
