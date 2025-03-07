@@ -40,6 +40,9 @@ public:
 	TSubclassOf<AActor> RifleBullet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Fire");
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Fire");
 	bool FireReady;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Fire");

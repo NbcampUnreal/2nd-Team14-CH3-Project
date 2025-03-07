@@ -96,15 +96,18 @@ void UEPWeaponComponent::GunFire()
 	}
 
 	ECharacterState State = Player->CharacterState;
-
+	
 
 	if (State == ECharacterState::Pistol)
 	{
 		GunFireLogic(HandGunData);
+		Damage = HandGunData.Damage;
 	}
 	else if (State == ECharacterState::Rifle)
 	{
 		GunFireLogic(RifleData);
+		Damage = RifleData.Damage;
+
 		UE_LOG(LogTemp, Warning, TEXT("Rifle "));
 
 		//Rifles.FireGun();
@@ -112,6 +115,8 @@ void UEPWeaponComponent::GunFire()
 	else if (State == ECharacterState::Shotgun)
 	{
 		GunFireLogic(ShotGunData);
+		Damage = ShotGunData.Damage;
+
 		//Rifles.FireGun();
 	}
 	else
@@ -144,7 +149,7 @@ void UEPWeaponComponent::GunFireLogic(FEPWeaponData& Data)
 		FireReady = false;
 		if (Data.Ammo <= 0)
 		{
-			ReloadLogic(Data);
+			Player->isBulletEmpty = true;
 			return;
 		}
 		//ÆÄÆ¼Å¬
@@ -253,7 +258,7 @@ void UEPWeaponComponent::ReloadLogic(FEPWeaponData& Data)
 	default:
 		break;
 	}
-
+	Player->isBulletEmpty = false;
 }
 
 

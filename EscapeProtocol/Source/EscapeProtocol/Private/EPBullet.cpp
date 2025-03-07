@@ -4,6 +4,8 @@
 #include "EPBullet.h"
 #include "Particles/ParticleSystem.h"
 #include "EPPlayerController.h"
+#include "EPWeaponComponent.h"
+#include "EPCharacter.h"
 #include "Kismet/GameplayStatics.h"
 // Sets default values
 AEPBullet::AEPBullet()
@@ -45,12 +47,29 @@ void AEPBullet::BeginPlay()
 	FVector ShotDirection = (EndTrace - StartTrace).GetSafeNormal();
 	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, true);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleEffect, StartTrace);
+	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	UEPWeaponComponent* WeaponComponent=nullptr;
+	if (Character)
+	{
+		AEPCharacter* Player = Cast<AEPCharacter>(Character);
+		if (Player)
+		{
+			WeaponComponent = Player->WeaponComponent;
+		}
+	}
+
 	if (GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_GameTraceChannel1))
 	{
 		AActor* HitActor = Hit.GetActor();
 		if (Hit.GetActor()->ActorHasTag(FName("Enemy")))
 		{
-			float DamageAmount = 10.0f;
+
+			
+			float DamageAmount;
+			if (WeaponComponent)
+			{
+				DamageAmount = WeaponComponent->Damage;
+			}
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint);
 			UGameplayStatics::ApplyPointDamage(
 				HitActor,
