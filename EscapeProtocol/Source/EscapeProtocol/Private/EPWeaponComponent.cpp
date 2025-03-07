@@ -15,8 +15,8 @@ UEPWeaponComponent::UEPWeaponComponent()
 
 	PrimaryComponentTick.bCanEverTick = true;
 	FireReady = true;
-
-
+	FireAnimFlag = false;
+	ReloadAnimFlag = false;
 	ConstructorHelpers::FClassFinder<AActor> RifleBulletClass(TEXT("/Game/Weapons/BP_ARBullet.BP_ARBullet_C"));
 	if (RifleBulletClass.Succeeded())
 	{
@@ -149,6 +149,7 @@ void UEPWeaponComponent::GunFireLogic(FEPWeaponData& Data)
 		}
 		//ÆÄÆ¼Å¬
 		Data.Ammo--;
+		FireAnimFlag = true;
 		if (WeaponMesh)
 		{
 			FTransform MuzzleTransform = WeaponMesh->GetSocketTransform(FName("Muzzle"), RTS_World);
@@ -165,7 +166,7 @@ void UEPWeaponComponent::GunFireLogic(FEPWeaponData& Data)
 void UEPWeaponComponent::Reload()
 {
 	ECharacterState State = Player->CharacterState;
-
+	ReloadAnimFlag = true;
 
 	if (State == ECharacterState::Pistol)
 	{
@@ -259,6 +260,7 @@ void UEPWeaponComponent::ReloadLogic(FEPWeaponData& Data)
 void UEPWeaponComponent::SetFireReady()
 {
 	FireReady = true;
+	FireAnimFlag = false;
 }
 
 FEPWeaponData UEPWeaponComponent::SetData(FEPWeaponDataRow* DataRow)

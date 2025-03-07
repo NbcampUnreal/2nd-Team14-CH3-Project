@@ -50,6 +50,7 @@ public:
     void StartSprint(const FInputActionValue& Value);
     void StopSprint(const FInputActionValue& Value);
     void Fire(const FInputActionValue& Value);
+    void FireCompleted (const FInputActionValue& Value);
     void Reload(const FInputActionValue& Value);
 	void EquipRifle(const FInputActionValue& Value);
 	void EquipShotgun(const FInputActionValue& Value);
@@ -109,20 +110,31 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|HP")
     float Health;
 
-    UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = "Information|Weapon")
+    UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = "Information|Component")
     UEPWeaponComponent* WeaponComponent;
     
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Component")
     USkeletalMeshComponent* WeaponMeshComponent;
 
-	
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
     USkeletalMesh* RifleMesh;
-
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
     USkeletalMesh* ShotGunMesh;
-
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Weapon")
     USkeletalMesh* HandGunMesh;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Component")
+    TSubclassOf<UAnimInstance> RifleMeshAnim;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Component")
+    TSubclassOf<UAnimInstance> ShotGunMeshAnim;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Information|Component")
+    TSubclassOf<UAnimInstance> HandGunMeshAnim;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Weapon")
+    bool isFire;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information|Weapon")
+    bool isReload;
 
 protected:
     virtual void BeginPlay() override;

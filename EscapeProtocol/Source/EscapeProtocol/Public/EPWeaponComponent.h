@@ -42,6 +42,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Fire");
 	bool FireReady;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Fire");
+	bool FireAnimFlag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon|Fire");
+	bool ReloadAnimFlag;
+
 	FTimerHandle FireDelayTimerHandle;
 
 	FEPWeaponDataRow* HandGunDataRow;
@@ -66,10 +72,10 @@ public:
 	UFUNCTION()
 	void GunFireLogic(FEPWeaponData& Data);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void Reload();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void ReloadLogic(FEPWeaponData& Data);
 
 	UFUNCTION()
