@@ -7,7 +7,7 @@ AEPRaptor::AEPRaptor()
 
 	MaxHealth = 200.0f;
 	AttackDamage = 20.0f;
-	Health = MaxHealth;
+	Health = MaxHealth; 
 	patrolRadius = 1000.0f;
 	PatrolSpeed = 400.0f;
 	AttackRange = 180.0f;
