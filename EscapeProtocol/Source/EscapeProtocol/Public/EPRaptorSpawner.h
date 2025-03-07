@@ -33,4 +33,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 	FRotator SpawnRotation;
 
+	UPROPERTY(EditAnywhere, Category = "Spawning")
+	float SpawnTime;
+
 };

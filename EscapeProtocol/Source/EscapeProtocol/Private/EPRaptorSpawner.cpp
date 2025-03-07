@@ -11,15 +11,16 @@
 AEPRaptorSpawner::AEPRaptorSpawner()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+    SpawnTime = 1.0f;
 }
 
 void AEPRaptorSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
+    
 	// BeginPlay 시에 1초 간격으로 SpawnRaptor 함수를 호출하는 타이머를 설정합니다.
-	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &AEPRaptorSpawner::SpawnRaptor, 1.0f, true);
+	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &AEPRaptorSpawner::SpawnRaptor, SpawnTime, true);
 	
 }
 
