@@ -16,7 +16,7 @@ AEPEnemyCharacter::AEPEnemyCharacter()
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 
-	MaxHealth = 200.0f;
+	MaxHealth = 80.0f;
 	AttackDamage = 20.0f;
 	Health = MaxHealth;
 	patrolRadius = 1000.0f;

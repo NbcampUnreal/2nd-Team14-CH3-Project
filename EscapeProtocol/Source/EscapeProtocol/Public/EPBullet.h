@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "EPBullet.generated.h"
 
+class UEPWeaponComponent;
+
 UCLASS()
 class ESCAPEPROTOCOL_API AEPBullet : public AActor
 {
@@ -17,6 +19,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Property")
 	float Range;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Property")
+	float DamageAmount;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Property")
+	UEPWeaponComponent* WeaponComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Property")
 	float LifeTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bullet|Particle")

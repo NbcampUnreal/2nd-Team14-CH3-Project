@@ -8,7 +8,7 @@
 AEPRiktor::AEPRiktor()
 {
     // 기본값 설정
-    MaxHealth = 10.0f;
+    MaxHealth = 2000.0f;
     AttackDamage = 50.0f;
     Health = MaxHealth;
     patrolRadius = 2000.0f;

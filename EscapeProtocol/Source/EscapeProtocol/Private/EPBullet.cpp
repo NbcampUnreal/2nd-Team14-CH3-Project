@@ -28,7 +28,7 @@ AEPBullet::AEPBullet()
 	PrimaryActorTick.bCanEverTick = true;
 
 	LifeTime = 3.0f;
-
+	
 }
 
 // Called when the game starts or when spawned
@@ -48,13 +48,14 @@ void AEPBullet::BeginPlay()
 	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, true);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleEffect, StartTrace);
 	ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	UEPWeaponComponent* WeaponComponent=nullptr;
 	if (Character)
 	{
 		AEPCharacter* Player = Cast<AEPCharacter>(Character);
 		if (Player)
 		{
-			WeaponComponent = Player->WeaponComponent;
+
+			DamageAmount = Player->WeaponComponent->Damage;
+
 		}
 	}
 
@@ -65,11 +66,8 @@ void AEPBullet::BeginPlay()
 		{
 
 			
-			float DamageAmount;
-			if (WeaponComponent)
-			{
-				DamageAmount = WeaponComponent->Damage;
-			}
+			
+			
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint);
 			UGameplayStatics::ApplyPointDamage(
 				HitActor,
@@ -92,7 +90,7 @@ void AEPBullet::BeginPlay()
 void AEPBullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 
 }
 
