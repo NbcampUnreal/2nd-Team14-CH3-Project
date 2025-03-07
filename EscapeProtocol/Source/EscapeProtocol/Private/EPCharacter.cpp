@@ -268,10 +268,7 @@ void AEPCharacter::EquipRifle(const FInputActionValue& Value)
 		if (RifleMesh)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(RifleMesh);
-			if (RifleMeshAnim)
-			{
-				WeaponMeshComponent->SetAnimClass(RifleMeshAnim);
-			}
+			WeaponMeshComponent->SetAnimClass(RifleMeshAnim);
 		}
 		
 		UE_LOG(LogTemp, Display, TEXT("EquipRifle"));
@@ -287,13 +284,14 @@ void AEPCharacter::EquipShotgun(const FInputActionValue& Value)
 	const bool EquipInput = Value.Get<bool>();
 	if (EquipInput)
 	{
+		
+		CharacterState = ECharacterState::Shotgun;
 		if (ShotGunMesh)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(ShotGunMesh);
 			WeaponMeshComponent->SetAnimClass(ShotGunMeshAnim);
 
 		}
-		CharacterState = ECharacterState::Shotgun;
 	}
 }
 
@@ -302,12 +300,12 @@ void AEPCharacter::EquipPistol(const FInputActionValue& Value)
 	const bool EquipInput = Value.Get<bool>();
 	if (EquipInput)
 	{
+		CharacterState = ECharacterState::Pistol;
 		if (HandGunMesh)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(HandGunMesh);
 			WeaponMeshComponent->SetAnimClass(HandGunMeshAnim);
 		}
-		CharacterState = ECharacterState::Pistol;
 	}
 }
 
@@ -317,6 +315,7 @@ void AEPCharacter::UnEquip(const FInputActionValue& Value)
 	if (UnEquipInput)
 	{
 		WeaponMeshComponent->SetSkeletalMesh(nullptr);
+		WeaponMeshComponent->SetAnimClass(nullptr);
 		CharacterState = ECharacterState::Unarmed;
 	}
 }
