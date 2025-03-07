@@ -58,7 +58,12 @@ AEPCharacter::AEPCharacter()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> RifleMeshs(TEXT("/Game/Weapons/Rifle/Mesh/SK_Rifle.SK_Rifle"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HandGunMeshs(TEXT("/Game/Weapons/Pistol/Mesh/SK_Pistol.SK_Pistol"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ShotGunMeshs(TEXT("/Game/Weapons/Shotgun/Mesh/SKM_Shotgun.SKM_Shotgun"));
-	
+	static ConstructorHelpers::FClassFinder<UAnimInstance> RifleAnimClass(TEXT("/Game/Weapons/ABP_Rifle.ABP_Rifle_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> HandGunAnimClass(TEXT("/Game/Weapons/ABP_Handgun.ABP_Handgun_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> ShotGunAnimClass(TEXT("/Game/Weapons/ABP_ShotGun.ABP_ShotGun_C"));
+
+
+
 	if (RifleMeshs.Succeeded())
 	{
 		RifleMesh = RifleMeshs.Object;
@@ -77,7 +82,18 @@ AEPCharacter::AEPCharacter()
 		UE_LOG(LogTemp, Warning, TEXT("ShotGunMesh Succeed!!"));
 
 	}
-
+	if (RifleAnimClass.Succeeded())
+	{
+		RifleMeshAnim = RifleAnimClass.Class;
+	}
+	if (HandGunAnimClass.Succeeded())
+	{
+		HandGunMeshAnim = HandGunAnimClass.Class;
+	}
+	if (ShotGunAnimClass.Succeeded())
+	{
+		ShotGunMeshAnim = ShotGunAnimClass.Class;
+	}
 	WeaponMeshComponent->SetupAttachment(GetMesh(), FName("hand_r_ability_socket"));
 
 	Health = 100.0f;
@@ -252,6 +268,7 @@ void AEPCharacter::EquipRifle(const FInputActionValue& Value)
 		if (RifleMesh)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(RifleMesh);
+			WeaponMeshComponent->SetAnimClass(RifleMeshAnim);
 		}
 		
 		UE_LOG(LogTemp, Display, TEXT("EquipRifle"));
@@ -267,11 +284,14 @@ void AEPCharacter::EquipShotgun(const FInputActionValue& Value)
 	const bool EquipInput = Value.Get<bool>();
 	if (EquipInput)
 	{
+		
+		CharacterState = ECharacterState::Shotgun;
 		if (ShotGunMesh)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(ShotGunMesh);
+			WeaponMeshComponent->SetAnimClass(ShotGunMeshAnim);
+
 		}
-		CharacterState = ECharacterState::Shotgun;
 	}
 }
 
@@ -280,11 +300,12 @@ void AEPCharacter::EquipPistol(const FInputActionValue& Value)
 	const bool EquipInput = Value.Get<bool>();
 	if (EquipInput)
 	{
+		CharacterState = ECharacterState::Pistol;
 		if (HandGunMesh)
 		{
 			WeaponMeshComponent->SetSkeletalMesh(HandGunMesh);
+			WeaponMeshComponent->SetAnimClass(HandGunMeshAnim);
 		}
-		CharacterState = ECharacterState::Pistol;
 	}
 }
 
@@ -293,6 +314,8 @@ void AEPCharacter::UnEquip(const FInputActionValue& Value)
 	const bool UnEquipInput = Value.Get<bool>();
 	if (UnEquipInput)
 	{
+		WeaponMeshComponent->SetSkeletalMesh(nullptr);
+		WeaponMeshComponent->SetAnimClass(nullptr);
 		CharacterState = ECharacterState::Unarmed;
 	}
 }
@@ -323,7 +346,7 @@ void AEPCharacter::Fire(const FInputActionValue& Value)
 {
 	// // 연사 사격 시
 	// const FName FireSectionName = FName("Fire");
-
+	isFire = Value.Get<bool>();
 	UAnimMontage* FireMontage = nullptr;
 
 	if (CharacterState == ECharacterState::Unarmed)
@@ -387,6 +410,11 @@ void AEPCharacter::Fire(const FInputActionValue& Value)
 	
 }
 
+void AEPCharacter::FireCompleted(const FInputActionValue& Value)
+{
+	isFire = false;
+}
+
 void AEPCharacter::Reload(const FInputActionValue& Value)
 {
 	UAnimMontage* ReloadMontage = nullptr;
@@ -394,9 +422,10 @@ void AEPCharacter::Reload(const FInputActionValue& Value)
 	{
 		return;
 	}
-	
+	isReload = true;
 	switch (CharacterState)
 	{
+		
 	case ECharacterState::Pistol :
 		{
 			if (PistolReloadMontage)
@@ -433,12 +462,12 @@ void AEPCharacter::Reload(const FInputActionValue& Value)
 		}
 	}
 
-	if (WeaponComponent)
-	{
-		WeaponComponent->Reload();
-		//UE_LOG(LogTemp, Warning, TEXT("Fire!!"));
+	//if (WeaponComponent)
+	//{
+	//	WeaponComponent->Reload();
+	//	//UE_LOG(LogTemp, Warning, TEXT("Fire!!"));
 
-	}
+	//}
 
 
 
@@ -559,6 +588,11 @@ void AEPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 			ETriggerEvent::Triggered,
 			this,
 			&AEPCharacter::Fire);
+		EnhancedInputComponent->BindAction(
+			PlayerController->FireAction,
+			ETriggerEvent::Completed,
+			this,
+			&AEPCharacter::FireCompleted);
 	}
 
 	if (PlayerController->ReloadAction)

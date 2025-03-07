@@ -1,14 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "EPEnemyCharacter.h"
 #include "EPRiktor.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class ESCAPEPROTOCOL_API AEPRiktor : public AEPEnemyCharacter
 {
@@ -16,6 +11,8 @@ class ESCAPEPROTOCOL_API AEPRiktor : public AEPEnemyCharacter
 	
 public:
     AEPRiktor();
+    
+
 
 protected:
     // **콤보 공격 관련 변수들**
@@ -53,8 +50,13 @@ protected:
     // 다음 콤보 입력(혹은 AI 로직)에 따라 콤보를 이어갈지 여부 결정
     void TryNextCombo();
 
+
 public:
     // 콤보를 강제로 끊거나 초기화하고 싶을 때 호출
     UFUNCTION(BlueprintCallable, Category = "Combo")
     void ResetCombo();
+
+
+
+
 };

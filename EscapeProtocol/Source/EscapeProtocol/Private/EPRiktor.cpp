@@ -1,9 +1,14 @@
 ﻿#include "EPRiktor.h"
+#include "EPCharacter.h"
+#include "EPAIController.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
+#include "kismet/GameplayStatics.h"
 
 AEPRiktor::AEPRiktor()
 {
     // 기본값 설정
-    MaxHealth = 1000.0f;
+    MaxHealth = 10.0f;
     AttackDamage = 50.0f;
     Health = MaxHealth;
     patrolRadius = 2000.0f;
@@ -33,9 +38,12 @@ void AEPRiktor::Attack()
 
 void AEPRiktor::PerformComboAttack()
 {
+
+    
     // 방금 콤보 시작하므로
     bIsComboAttacking = true;
     bCanCombo = false;
+    AEPCharacter* PlayerCharacter = Cast<AEPCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
     if (ComboMontages.IsValidIndex(CurrentComboIndex))
     {
@@ -48,13 +56,15 @@ void AEPRiktor::PerformComboAttack()
                 float MontageDuration = AnimInst->Montage_Play(MontageToPlay, 1.0f);
                 if (MontageDuration > 0.f)
                 {
+                    
+
                     // 몽타주가 끝날 때 실행할 델리게이트 바인딩
                     FOnMontageEnded EndDelegate;
                     EndDelegate.BindUObject(this, &AEPRiktor::OnComboMontageEnded);
                     AnimInst->Montage_SetEndDelegate(EndDelegate, MontageToPlay);
 
-                    // 만약 AI라면 여기서 데미지 적용 가능 (ex. ApplyDamage)
-                    // 혹은 Montage Notify를 통해 데미지 타이밍 제어
+                    float DamageAmount = GetAttackerPower();
+                    UGameplayStatics::ApplyDamage(PlayerCharacter, DamageAmount * (CurrentComboIndex + 0.5), GetController(), this, UDamageType::StaticClass());
                 }
                 else
                 {
@@ -102,6 +112,9 @@ void AEPRiktor::TryNextCombo()
         UE_LOG(LogTemp, Warning, TEXT("Cannot combo now!"));
     }
 }
+
+
+
 
 void AEPRiktor::ResetCombo()
 {

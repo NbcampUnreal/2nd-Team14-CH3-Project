@@ -49,6 +49,12 @@ bool AEPEnemyCharacter::GetIsAttacking() const
 	return bIsAttacking;
 }
 
+bool AEPEnemyCharacter::IsDead() const
+{
+	return bIsDead;
+}
+
+
 float AEPEnemyCharacter::GetHealth() const
 {
 	return Health;
@@ -97,25 +103,37 @@ float AEPEnemyCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 			if (AnimInstance)
 			{
-				float MontageDuration = AnimInstance->Montage_Play(DeathMontage, 1.0f);
+				float MontageDuration = AnimInstance->Montage_Play(DeathMontage, 1.f);
 				UE_LOG(LogTemp, Warning, TEXT("Playing DeathMontage, Duration: %f"), MontageDuration);
+
+				// ACharacter가 아니라면, PawnMovementComponent를 찾아서 이동을 중지합니다.
+				if (AEPAIController* AIController = Cast<AEPAIController>(GetController()))
+				{
+					AIController->UnPossess();
+				}
+
+				float DelayTime = 2.0f; // 이 값을 조정해서 노티파이가 확실히 발생하는지 확인
+				GetWorldTimerManager().SetTimer(DeathTimerHandle, this, &AEPEnemyCharacter::HandleDeath, DelayTime, false);
 			}
 		}
-		// AnimInstance를 중지시키고 RagDoll 활성화
-		GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
-		GetMesh()->SetSimulatePhysics(true);
-		// 애니메이션 모드를 물리 시뮬레이션에 맞게 변경
-		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-
-		AEPAIController* AIController = Cast<AEPAIController>(GetController());
-		if (AIController)
+		else
 		{
-			AIController->UnPossess();
-		}
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		SetActorTickEnabled(false);
+			// AnimInstance를 중지시키고 RagDoll 활성화
+			GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+			GetMesh()->SetSimulatePhysics(true);
+			// 애니메이션 모드를 물리 시뮬레이션에 맞게 변경
+			GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 
-		DropLoot();
+			AEPAIController* AIController = Cast<AEPAIController>(GetController());
+			if (AIController)
+			{
+				AIController->UnPossess();
+			}
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			SetActorTickEnabled(false);
+
+			DropLoot();
+		}
 	}
 
 	return ModifiedDamage;
@@ -234,4 +252,32 @@ void AEPEnemyCharacter::DropLoot()
 	{
 		ItemSpawner->SpawnItem(GetActorLocation());
 	}
+}
+
+void AEPEnemyCharacter::HandleDeath()
+{
+
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		// DeathMontage의 총 재생 길이를 가져옵니다.
+		float MontageLength = DeathMontage->GetPlayLength();
+		// 마지막 프레임에 가깝게 위치를 설정하고 재생 속도를 0으로 만듭니다.
+		AnimInstance->Montage_SetPosition(DeathMontage, MontageLength - 0.01f);
+		AnimInstance->Montage_SetPlayRate(DeathMontage, 0.0f);
+	}
+
+	// 충돌 및 이동 컴포넌트를 제거하여 더 이상 이동하지 않게 합니다.
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Capsule->DestroyComponent();
+	}
+
+	// 스켈레탈 메시의 애니메이션 업데이트를 중지합니다.
+	GetMesh()->bPauseAnims = true;
+
+
+
+	SetActorTickEnabled(false);
+	DropLoot();
 }

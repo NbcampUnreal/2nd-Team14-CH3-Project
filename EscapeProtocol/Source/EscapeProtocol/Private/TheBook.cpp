@@ -43,7 +43,6 @@ void ATheBook::OnItemOverlap(
     // OtherActor가 플레이어인지 확인 ("Player" 태그 활용)
     if (OtherActor && OtherActor->ActorHasTag("Player"))
     {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Overlap!!!")));
         // 아이템 사용 (획득) 로직 호출
         ActivateItem(OtherActor);
     }
@@ -59,14 +58,22 @@ void ATheBook::OnItemEndOverlap(
 
 void ATheBook::ActivateItem(AActor* Activator)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Overlap!!")));
+
+    if (PickupSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(
+            GetWorld(),
+            PickupSound,
+            GetActorLocation()
+        );
+    }
+
     DestroyItem();
 
     AEPGameState* GameState = GetWorld()->GetGameState<AEPGameState>();
     if (GameState)
     {
         GameState->EPBook = true;  // EPBook을 true로 설정
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, FString::Printf(TEXT("EPBook is %s"), GameState->EPBook ? TEXT("TRUE") : TEXT("FALSE")));
     }
 
     TArray<AActor*> FoundActors;
